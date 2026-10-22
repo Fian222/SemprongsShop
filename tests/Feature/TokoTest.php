@@ -18,6 +18,7 @@ use App\Models\pesanandetail;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -62,6 +63,35 @@ class TokoTest extends TestCase
         $this->get('/login')->assertOk();
         $this->get('/register')->assertOk();
         $this->get('/admin/login')->assertOk();
+    }
+
+    public function test_registrasi_lalu_login_ulang()
+    {
+        $this->post('/register', [
+            'name' => 'Budi',
+            'email' => 'budi@example.com',
+            'password' => 'rahasia123',
+            'password_confirmation' => 'rahasia123',
+        ])->assertRedirect('/');
+
+        $user = User::where('email', 'budi@example.com')->firstOrFail();
+        $this->assertAuthenticatedAs($user);
+        // RegisterController sudah Hash::make; cast 'hashed' tidak boleh meng-hash dua kali
+        $this->assertTrue(Hash::check('rahasia123', $user->password));
+
+        $this->post('/logout');
+        $this->assertGuest();
+
+        $this->post('/login', ['email' => 'budi@example.com', 'password' => 'rahasia123'])->assertRedirect('/');
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_user_yang_sudah_login_tidak_bisa_buka_login_dan_register()
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get('/login')->assertRedirect('/');
+        $this->get('/register')->assertRedirect('/');
     }
 
     public function test_tamu_diarahkan_ke_login()
