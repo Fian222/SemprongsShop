@@ -1,7 +1,7 @@
 <div>
     <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="{{ url('/') }}">
+            <a wire:navigate class="navbar-brand" href="{{ url('/') }}">
                 Semprong<strong>Loves</strong>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -13,10 +13,10 @@
                 <!-- Left Side Of Navbar -->
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('home') }}">Home</a>
+                        <a wire:navigate class="nav-link" href="{{ route('home') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('produk') }}">Produk</a>
+                        <a wire:navigate class="nav-link" href="{{ route('produk') }}">Produk</a>
                     </li>
                 </ul>
 
@@ -24,10 +24,10 @@
                 <ul class="navbar-nav ms-auto">
                     <!-- Authentication Links -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('history') }}">History</a>
+                        <a wire:navigate class="nav-link" href="{{ route('history') }}">History</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('pesanann') }}">Pesanan
+                        <a wire:navigate class="nav-link" href="{{ route('pesanann') }}">Pesanan
                             <i class="fas fa-shopping-bag"></i>
                             @if ($jumlah_pesanan !== 0)
                                 <span class="badge text-bg-danger">{{ $jumlah_pesanan }}</span>

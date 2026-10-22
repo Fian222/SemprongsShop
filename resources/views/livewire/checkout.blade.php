@@ -3,8 +3,8 @@
         <div class="col">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-dark"> Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('pesanann') }}" class="text-dark"> Pesanan</a></li>
+                    <li class="breadcrumb-item"><a wire:navigate href="{{ route('home') }}" class="text-dark"> Home</a></li>
+                    <li class="breadcrumb-item"><a wire:navigate href="{{ route('pesanann') }}" class="text-dark"> Pesanan</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Check Out</li>
                 </ol>
             </nav>
@@ -23,7 +23,7 @@
 
     <div class="row">
         <div class="col">
-            <a href="{{ route('pesanann') }}" class="btn btn-sm btn-dark"><i class="fas fa-arrow-left"></i> Kembali</a>
+            <a wire:navigate href="{{ route('pesanann') }}" class="btn btn-sm btn-dark"><i class="fas fa-arrow-left"></i> Kembali</a>
         </div>
     </div>
     <div class="row mt-4">
