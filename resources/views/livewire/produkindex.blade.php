@@ -1,58 +1,31 @@
-<div class="container">
-    <div class="row mt-3">
-        <div class="col">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a wire:navigate href="{{ route('home') }}" class="text-dark"> Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Produk</li>
-                </ol>
-            </nav>
+<div class="mx-auto max-w-6xl px-4 pt-8 sm:px-6">
+    <x-breadcrumb :items="['Beranda' => route('home'), 'Produk' => null]" />
+
+    <div class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h1 class="text-4xl font-bold">Semua produk</h1>
+            <p class="mt-1 text-ink-muted">Pilih rasa favoritmu, semua dibuat fresh setelah dipesan.</p>
         </div>
+        <label class="relative block sm:w-72">
+            <span class="sr-only">Cari produk</span>
+            <x-icon name="search" class="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-ink-muted" />
+            <input wire:model.live.debounce.300ms="search" type="search" placeholder="Cari rasa…" class="input rounded-full pl-10">
+        </label>
     </div>
 
-    <div class="row">
-        <div class="col-md-8">
-            <h2>List <strong>Produk</strong></h2>
-        </div>
-        <div class="col-md-4">
-            <div class="input-group mb-3">
-                <input wire:model.live="search" type="text" class="form-control" placeholder="Cari" aria-label="Cari"
-                    aria-describedby="basic-addon1">
-                <span class="input-group-text" id="basic-addon1">
-                    <i class="fas fa-search"></i>
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <section class="produk mb-5">
-        <div class="row">
-            @foreach ($barangs as $barang)
-                <div class="col-md-4">
-                    <div class="card shadow mt-5 col">
-                        <div class="card-body text-center">
-                            <img src="{{ url('build/images') }}/{{ $barang->gambar }}" class="img-fluid">
-                            <div class="row mt-2">
-                                <div class="col-md-12">
-                                    <h5><strong>{{ $barang->nama_barang }}</strong></h5>
-                                    <h5>Rp. {{ number_format($barang->harga_barang) }}</h5>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-md-12">
-                                    <a wire:navigate href="{{ route('produk.detail', $barang->id) }}"
-                                        class="btn btn-dark btn-block w-100"><i class="fa fa-eye"></i> Detail</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <section class="mt-8">
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            @forelse ($barangs as $barang)
+                <x-product-card :barang="$barang" :href="route('produk.detail', $barang->id)" wire:key="barang-{{ $barang->id }}" />
+            @empty
+                <div class="card sm:col-span-2 lg:col-span-3">
+                    <x-empty icon="search">Tidak ada produk yang cocok dengan “{{ $search }}”.</x-empty>
                 </div>
-            @endforeach
+            @endforelse
         </div>
-        <div class="row mt-3">
-            <div class="container">
-                {{ $barangs->links() }}
-            </div>
+
+        <div class="mt-10">
+            {{ $barangs->links() }}
         </div>
     </section>
 </div>

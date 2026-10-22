@@ -1,77 +1,62 @@
-<div class="container">
-    <div class="row mt-3">
-        <div class="col">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a wire:navigate href="{{ route('home') }}" class="text-dark"> Home</a></li>
-                    <li class="breadcrumb-item"><a wire:navigate href="{{ route('pesanann') }}" class="text-dark"> Pesanan</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Check Out</li>
-                </ol>
-            </nav>
-        </div>
+<div class="mx-auto max-w-6xl px-4 pt-8 sm:px-6">
+    <x-breadcrumb :items="['Beranda' => route('home'), 'Pesanan' => route('pesanann'), 'Checkout' => null]" />
+
+    <div class="mt-6 flex items-center gap-3">
+        <a wire:navigate href="{{ route('pesanann') }}" class="btn btn-secondary size-10 p-0" aria-label="Kembali ke pesanan">
+            <x-icon name="arrow-left" />
+        </a>
+        <h1 class="text-4xl font-bold">Checkout</h1>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            @if (session()->has('message'))
-                <div class="alert alert-danger">
-                    {{ session('message') }}
-                </div>
-            @endif
-        </div>
-    </div>
+    <x-flash type="danger" class="mt-6" />
 
-    <div class="row">
-        <div class="col">
-            <a wire:navigate href="{{ route('pesanann') }}" class="btn btn-sm btn-dark"><i class="fas fa-arrow-left"></i> Kembali</a>
-        </div>
-    </div>
-    <div class="row mt-4">
-        <div class="col">
-            <h4>Informasi Pembayaran</h4>
-            <hr>
-            <p>Untuk Pembayaran Silakan Dapat Transfer di Rekening di bawah ini sebesar : <br><strong>Rp.
-                    {{ number_format($total_harga) }}</strong></p>
-            <div class="d-flex">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-building-columns fa-3x" aria-hidden="true"></i>
-                </div>
-                <div class="flex-grow-1 ms-3">
-                    <h5>Bank BCA</h5>
-                    No. Rekening 12722993 atas nama <strong>Akhmat Oktafian</strong>
+    <div class="mt-8 grid gap-8 lg:grid-cols-2">
+        <section class="card p-6 sm:p-8">
+            <h2 class="text-2xl font-bold">Informasi pembayaran</h2>
+            <p class="mt-2 text-ink-muted">Silakan transfer ke rekening di bawah ini sebesar:</p>
+            <p class="mt-4 text-4xl font-bold text-brand">@rupiah($total_harga)</p>
+
+            <div class="mt-6 flex items-center gap-4 rounded-2xl bg-surface-muted p-5">
+                <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">
+                    <x-icon name="landmark" class="size-6" />
+                </span>
+                <div>
+                    <p class="font-semibold">Bank BCA</p>
+                    <p class="text-sm text-ink-muted">
+                        No. rekening <span class="font-mono font-semibold text-ink">12722993</span>
+                        a.n. <span class="font-semibold text-ink">Akhmat Oktafian</span>
+                    </p>
                 </div>
             </div>
-        </div>
-        <div class="col">
-            <h4>Informasi Pengiriman</h4>
-            <hr>
-            <form wire:submit.prevent="checkout">
-                <div class="form-group">
-                    <label for="">No. HP</label>
-                    <input type="tel" id="nohp" class="form-control @error('nohp') is-invalid @enderror"
-                        wire:model="nohp" value="{{ old('nohp') }}" autocomplete="name" autofocus
-                        pattern="(\+62|62|0)8[1-9][0-9]{9,10}$">
+        </section>
+
+        <section class="card p-6 sm:p-8">
+            <h2 class="text-2xl font-bold">Informasi pengiriman</h2>
+            <form wire:submit="checkout" class="mt-6 flex flex-col gap-5">
+                <div>
+                    <label for="nohp" class="label">No. HP</label>
+                    <input type="tel" id="nohp" wire:model="nohp" autocomplete="tel" autofocus
+                        placeholder="08xxxxxxxxxx" pattern="(\+62|62|0)8[1-9][0-9]{9,10}$"
+                        class="input @error('nohp') input-invalid @enderror">
                     @error('nohp')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                        <p class="field-error">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div class="form-group mt-2">
-                    <label for="">Alamat</label>
-                    <textarea wire:model="alamat" class="form-control @error('alamat') is-invalid @enderror"></textarea>
+                <div>
+                    <label for="alamat" class="label">Alamat lengkap</label>
+                    <textarea id="alamat" wire:model="alamat" rows="4" autocomplete="street-address"
+                        placeholder="Nama jalan, nomor rumah, kecamatan, kota"
+                        class="input @error('alamat') input-invalid @enderror"></textarea>
                     @error('alamat')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                        <p class="field-error">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <button type="submit" class="btn btn-success btn-block mt-3 col-lg-12"><i
-                        class="fas fa-arrow-right"></i>
-                    Checkout</button>
+                <button type="submit" class="btn btn-primary w-full" wire:loading.attr="disabled">
+                    Konfirmasi pesanan <x-icon name="arrow-right" />
+                </button>
             </form>
-        </div>
+        </section>
     </div>
 </div>

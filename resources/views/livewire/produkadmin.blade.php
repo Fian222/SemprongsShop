@@ -1,49 +1,29 @@
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-8">
-            <h2>List <strong>Produk</strong></h2>
+<div>
+    <x-admin-heading title="Produk" subtitle="Kelola katalog, stok, dan harga.">
+        <div class="flex flex-col gap-3 sm:flex-row">
+            <label class="relative block sm:w-64">
+                <span class="sr-only">Cari produk</span>
+                <x-icon name="search" class="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-ink-muted" />
+                <input wire:model.live.debounce.300ms="search" type="search" placeholder="Cari produk…" class="input rounded-full pl-10">
+            </label>
+            <a wire:navigate href="{{ route('admin.tambah') }}" class="btn btn-primary">
+                <x-icon name="plus" /> Tambah barang
+            </a>
         </div>
-        <div class="col-md-4">
-            <div class="input-group mb-3">
-                <input wire:model.live="search" type="text" class="form-control" placeholder="Cari" aria-label="Cari"
-                    aria-describedby="basic-addon1">
-                <span class="input-group-text" id="basic-addon1">
-                    <i class="fas fa-search"></i>
-                </span>
+    </x-admin-heading>
+
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        @forelse ($barangs as $barang)
+            <x-product-card :barang="$barang" :href="route('admin.detail', $barang->id)" action="Ubah stok & harga"
+                wire:key="barang-{{ $barang->id }}" />
+        @empty
+            <div class="card sm:col-span-2 lg:col-span-3">
+                <x-empty icon="package">Tidak ada produk ditemukan.</x-empty>
             </div>
-        </div>
+        @endforelse
     </div>
-    <a wire:navigate href="{{ route('admin.tambah') }}" class="btn btn-success btn-block mt-2" style="width: 20%">Tambah Barang</a>
 
-    <section class="produk mb-5">
-
-        <div class="row">
-            @foreach ($barangs as $barang)
-                <div class="col-md-4">
-                    <div class="card shadow mt-5 col">
-                        <div class="card-body text-center">
-                            <img src="{{ url('build/images') }}/{{ $barang->gambar }}" class="img-fluid">
-                            <div class="row mt-2">
-                                <div class="col-md-12">
-                                    <h5><strong>{{ $barang->nama_barang }}</strong></h5>
-                                    <h5>Rp. {{ number_format($barang->harga_barang) }}</h5>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-md-12">
-                                    <a wire:navigate href="{{ route('admin.detail', $barang->id) }}"
-                                        class="btn btn-dark btn-block w-100">Edit</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-        <div class="row mt-3">
-            <div class="container">
-                {{ $barangs->links() }}
-            </div>
-        </div>
-    </section>
+    <div class="mt-10">
+        {{ $barangs->links() }}
+    </div>
 </div>

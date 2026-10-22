@@ -1,0 +1,143 @@
+@import 'tailwindcss';
+
+@source '../views';
+
+/*
+ * Token warna "warm bakery". Utilitas memakai nama semantik (bg-canvas, text-ink, ...)
+ * dan nilainya ditukar di dark mode lewat variabel CSS, jadi view tidak perlu kelas dark:.
+ */
+@theme {
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Fraunces', ui-serif, Georgia, serif;
+
+    --color-canvas: #fbf6ee;
+    --color-surface: #ffffff;
+    --color-surface-muted: #f5ecdf;
+    --color-line: #eadcc8;
+    --color-ink: #2b1d12;
+    --color-ink-muted: #7a6553;
+
+    --color-brand: #b45309;
+    --color-brand-hover: #92400e;
+    --color-brand-soft: #fdecd3;
+    --color-on-brand: #ffffff;
+
+    --color-ok: #047857;
+    --color-ok-soft: #d1fae5;
+    --color-warn: #a16207;
+    --color-warn-soft: #fef3c7;
+    --color-bad: #be123c;
+    --color-bad-soft: #ffe4e6;
+    --color-on-bad: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-canvas: #17110d;
+        --color-surface: #221a14;
+        --color-surface-muted: #2c221b;
+        --color-line: #3d3027;
+        --color-ink: #f6ebdd;
+        --color-ink-muted: #b9a691;
+
+        --color-brand: #f0a04b;
+        --color-brand-hover: #f6b977;
+        --color-brand-soft: #3b2615;
+        --color-on-brand: #1c130c;
+
+        --color-ok: #6ee7b7;
+        --color-ok-soft: #10342a;
+        --color-warn: #fcd34d;
+        --color-warn-soft: #3a2e10;
+        --color-bad: #fda4af;
+        --color-bad-soft: #3f1820;
+        --color-on-bad: #2a0d13;
+    }
+}
+
+@layer base {
+    :root {
+        color-scheme: light dark;
+    }
+
+    body {
+        @apply bg-canvas font-sans text-ink antialiased;
+    }
+
+    h1, h2, h3 {
+        @apply font-display tracking-tight;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+@layer components {
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold
+            transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand
+            disabled:cursor-not-allowed disabled:opacity-50;
+    }
+    .btn-primary {
+        @apply bg-brand text-on-brand hover:bg-brand-hover;
+    }
+    .btn-secondary {
+        @apply border border-line bg-surface text-ink hover:bg-surface-muted;
+    }
+    .btn-danger {
+        @apply bg-bad-soft text-bad hover:bg-bad hover:text-on-bad;
+    }
+    .btn-sm {
+        @apply px-3.5 py-1.5 text-xs;
+    }
+
+    .card {
+        @apply rounded-2xl border border-line bg-surface shadow-sm;
+    }
+
+    .label {
+        @apply mb-1.5 block text-sm font-medium text-ink;
+    }
+    .input {
+        @apply block w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink
+            placeholder:text-ink-muted/70 transition
+            focus:border-brand focus:ring-4 focus:ring-brand/15 focus:outline-none
+            file:mr-3 file:rounded-full file:border-0 file:bg-brand-soft file:px-3 file:py-1 file:text-sm file:font-semibold file:text-brand;
+    }
+    .input-invalid {
+        @apply border-bad focus:border-bad focus:ring-bad/15;
+    }
+    .field-error {
+        @apply mt-1.5 text-sm font-medium text-bad;
+    }
+
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    }
+    .badge-ok {
+        @apply bg-ok-soft text-ok;
+    }
+    .badge-warn {
+        @apply bg-warn-soft text-warn;
+    }
+    .badge-bad {
+        @apply bg-bad-soft text-bad;
+    }
+
+    .table-wrap {
+        @apply overflow-x-auto rounded-2xl border border-line bg-surface shadow-sm;
+    }
+    .table {
+        @apply w-full text-left text-sm;
+    }
+    .table thead {
+        @apply bg-surface-muted text-xs tracking-wide text-ink-muted uppercase;
+    }
+    .table th {
+        @apply px-4 py-3 font-semibold whitespace-nowrap;
+    }
+    .table td {
+        @apply border-t border-line px-4 py-3 align-top;
+    }
+}

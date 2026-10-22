@@ -1,64 +1,41 @@
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            @if (session()->has('message'))
-                <div class="alert alert-success">
-                    {{ session('message') }}
-                </div>
-            @endif
-        </div>
-    </div>
+<div>
+    <x-admin-heading title="Pesanan masuk" subtitle="Pesanan yang sudah checkout dan menunggu konfirmasi pembayaran." />
 
-    <div class="row mt-4">
-        <div class="col">
-            <table class="table text-center">
-                <thead>
-                    <tr>
-                        <td>No.</td>
-                        <td>Nama Pemesan</td>
-                        <td>Tanggal Pemesanan</td>
-                        <td>Kode Pemesanan</td>
-                        <td>Pesanan</td>
-                        <td>Jumlah Pesanan</td>
-                        <td><strong>Total Harga</strong></td>
-                        <td></td>
+    <x-flash class="mt-6" />
+
+    <div class="table-wrap mt-6">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Kode</th>
+                    <th>Pemesan</th>
+                    <th>Tanggal</th>
+                    <th>Pesanan</th>
+                    <th class="text-right">Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($pesanan as $item)
+                    <tr wire:key="pesanan-{{ $item->id }}">
+                        <td class="font-mono font-semibold whitespace-nowrap">{{ $item->kode_pemesanan }}</td>
+                        <td class="font-medium whitespace-nowrap">{{ $item->user->name }}</td>
+                        <td class="whitespace-nowrap text-ink-muted">@tanggal($item->created_at)</td>
+                        <td><x-daftar-barang-pesanan :pesanan="$item" /></td>
+                        <td class="text-right font-semibold whitespace-nowrap">@rupiah($item->total_harga)</td>
+                        <td class="text-right">
+                            <button type="button" wire:click="konfirmasi({{ $item->id }})"
+                                class="btn btn-primary btn-sm whitespace-nowrap">
+                                <x-icon name="check" /> Konfirmasi
+                            </button>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php $no = 1; ?>
-                    @forelse ($pesanan as $pesanan)
-                        <tr>
-                            <td>{{ $no++ }}</td>
-                            <td>{{ $pesanan->user->name }}</td>
-                            <td>{{ $pesanan->created_at }}</td>
-                            <td>{{ $pesanan->kode_pemesanan }}</td>
-                            <td>
-                                <?php $pesanan_detail = \App\Models\pesanandetail::where('id_pesanan', $pesanan->id)->get(); ?>
-                                @foreach ($pesanan_detail as $pesan)
-                                    <img src="{{ url('build/images') }}/{{ $pesan->barang->gambar }}" class="img-fluid"
-                                        width="50">
-                                    {{ $pesan->barang->nama_barang }}
-                                    <br>
-                                @endforeach
-                            </td>
-                            <td><?php $pesanan_detail = \App\Models\pesanandetail::where('id_pesanan', $pesanan->id)->get(); ?>
-                                @foreach ($pesanan_detail as $pesan)
-                                    {{ $pesan->jumlah_pesanan }}
-                                    <br>
-                                @endforeach
-                            </td>
-                            <td><strong>Rp. {{ number_format($pesanan->total_harga) }}</strong></td>
-                            <td><button wire:click="konfirmasi({{ $pesanan->id }})"
-                                    class="btn btn-success">Konfirmasi</button></td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6">Data Kosong</td>
-                        </tr>
-                    @endforelse
-
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <tr>
+                        <td colspan="6"><x-empty>Tidak ada pesanan yang menunggu konfirmasi.</x-empty></td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>

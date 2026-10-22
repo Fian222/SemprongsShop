@@ -4,52 +4,27 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#fbf6ee" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#17110d" media="(prefers-color-scheme: dark)">
 
-    <title>Semprong</title>
+    <title>SemprongLoves — Kue semprong renyah buatan rumah</title>
 
-    <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href='https://fonts.googleapis.com/css?family=Josefin Sans' rel='stylesheet'>
-
+    @include('layouts.fonts')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
-
-    <!-- Scripts -->
-    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-    <link rel="stylesheet" href="fontawesome/css/all.min.css">
-    <style>
-        html {
-            height: 100%;
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            margin: 0;
-            padding-bottom: 3.74rem;
-            box-sizing: inherit;
-        }
-    </style>
 </head>
 
-<body>
-    <div id="app">
+<body class="flex min-h-dvh flex-col overflow-x-clip">
+    <livewire:navbar />
 
-        <livewire:navbar />
-        <main class="py-2">
-            @yield('content')
-            @include('layouts.footer')
-        </main>
-    </div>
+    <main class="flex-1 pb-16">
+        @yield('content')
+    </main>
+
+    @include('layouts.footer')
 
     @livewireScripts
-</body>
-
 </body>
 
 </html>

@@ -1,85 +1,50 @@
-<div class="container">
-    <div class="row mt-3">
-        <div class="col">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a wire:navigate href="{{ route('home') }}" class="text-dark"> Home</a></li>
-                    <li class="breadcrumb-item"><a wire:navigate href="{{ route('produk') }}" class="text-dark"> Produk</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Produk detail</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
+<div class="mx-auto max-w-6xl px-4 pt-8 sm:px-6">
+    <x-breadcrumb :items="['Beranda' => route('home'), 'Produk' => route('produk'), $product->nama_barang => null]" />
 
-    <div class="row">
-        <div class="col-md-12">
-            @if (session()->has('message'))
-                <div class="alert alert-success">
-                    {{ session('message') }}
-                </div>
+    <x-flash class="mt-6" />
+
+    <div class="mt-6 grid gap-10 md:grid-cols-2">
+        <div class="card overflow-hidden">
+            <img src="{{ url('build/images') }}/{{ $product->gambar }}" alt="{{ $product->nama_barang }}"
+                class="aspect-square w-full object-cover">
+        </div>
+
+        <div class="flex flex-col">
+            @if ($product->stok_barang >= 1)
+                <span class="badge badge-ok self-start"><x-icon name="check" class="size-3" /> Tersedia</span>
+            @else
+                <span class="badge badge-bad self-start"><x-icon name="x" class="size-3" /> Stok habis</span>
             @endif
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card gambar-produk">
-                <div class="card-body">
-                    <img src="{{ url('build/images') }}/{{ $product->gambar }}" class="img-fluid">
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <h2><strong>{{ $product->nama_barang }}</strong>
-                @if ($product->stok_barang >= 1)
-                    <span class="badge text-bg-success"><i class="fas fa-check"></i> Tersedia</span>
-                @else
-                    <span class="badge text-bg-danger"><i class="fas fa-times"></i> Stok Habis</span>
-                @endif
-            </h2>
-            <h4>Rp. {{ number_format($product->harga_barang) }}</h4>
-            <hr>
-            <div class="row">
-                <div class="col">
-                    <form wire:submit.prevent="masukkankeranjang">
-                        <table class="table" style="border-top: hidden">
-                            <tr>
-                                <td>Varian Rasa</td>
-                                <td>:</td>
-                                <td>{{ $product->nama_barang }}</td>
-                            </tr>
-                            <tr>
-                                <td>Jumlah Barang yang tersedia</td>
-                                <td>:</td>
-                                <td>{{ $product->stok_barang }}</td>
-                            </tr>
-                            <tr>
-                                <td>Jumlah yang ingin dipesan</td>
-                                <td>:</td>
-                                <td>
-                                    <input id="jumlah_pesanan" type="number"
-                                        class="form-control @error('jumlah_pesanan') is-invalid @enderror"
-                                        wire:model="jumlah_pesanan" value="{{ old('jumlah_pesanan') }}" required
-                                        autocomplete="jumlah_pesanan" autofocus>
+            <h1 class="mt-4 text-4xl font-bold">{{ $product->nama_barang }}</h1>
+            <p class="mt-3 text-3xl font-semibold text-brand">@rupiah($product->harga_barang)</p>
 
-                                    @error('jumlah_pesanan')
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="3">
-                                    <button type="submit" class="btn btn-dark col-lg-12"
-                                        @if ($product->stok_barang < 1) disabled @endif><i
-                                            class="fas fa-shopping-cart"></i> Masukkan Ke Pesanan</button>
-                                </td>
-                            </tr>
-                        </table>
-                    </form>
+            <dl class="mt-8 grid grid-cols-2 gap-4">
+                <div class="rounded-2xl bg-surface-muted p-4">
+                    <dt class="text-xs font-semibold tracking-wide text-ink-muted uppercase">Varian rasa</dt>
+                    <dd class="mt-1 font-semibold">{{ $product->nama_barang }}</dd>
                 </div>
-            </div>
+                <div class="rounded-2xl bg-surface-muted p-4">
+                    <dt class="text-xs font-semibold tracking-wide text-ink-muted uppercase">Stok tersedia</dt>
+                    <dd class="mt-1 font-semibold">{{ $product->stok_barang }} pcs</dd>
+                </div>
+            </dl>
+
+            <form wire:submit="masukkankeranjang" class="mt-8 border-t border-line pt-8">
+                <label for="jumlah_pesanan" class="label">Jumlah yang ingin dipesan</label>
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <input id="jumlah_pesanan" type="number" min="1" max="{{ $product->stok_barang }}"
+                        class="input sm:w-32 @error('jumlah_pesanan') input-invalid @enderror"
+                        wire:model="jumlah_pesanan" required>
+                    <button type="submit" class="btn btn-primary flex-1" @disabled($product->stok_barang < 1)
+                        wire:loading.attr="disabled">
+                        <x-icon name="shopping-cart" /> Masukkan ke pesanan
+                    </button>
+                </div>
+                @error('jumlah_pesanan')
+                    <p class="field-error">{{ $message }}</p>
+                @enderror
+            </form>
         </div>
     </div>
 </div>
