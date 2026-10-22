@@ -25,7 +25,6 @@
                         <td class="text-right font-semibold whitespace-nowrap">@rupiah($item->total_harga)</td>
                         <td class="text-right">
                             <button type="button" wire:click="konfirmasi({{ $item->id }})"
-                                wire:confirm="Konfirmasi pembayaran pesanan {{ $item->kode_pemesanan }}?"
                                 class="btn btn-primary btn-sm whitespace-nowrap">
                                 <x-icon name="check" /> Konfirmasi
                             </button>

@@ -26,7 +26,7 @@
                             </p>
                             <p class="mt-2 font-semibold">@rupiah($pesan->total_harga)</p>
                         </div>
-                        <button type="button" wire:click="destroy({{ $pesan->id }})" wire:confirm="Hapus item ini dari pesanan?"
+                        <button type="button" wire:click="destroy({{ $pesan->id }})"
                             class="btn btn-danger size-10 p-0" aria-label="Hapus {{ $pesan->barang->nama_barang }}">
                             <x-icon name="trash" />
                         </button>
