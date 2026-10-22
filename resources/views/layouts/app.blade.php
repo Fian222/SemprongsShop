@@ -18,9 +18,6 @@
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-    <link rel="stylesheet" href="/bootstrap/bootstrap-5.2.2-dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="build/assets/custom.css">
-    <script src="/bootstrap/bootstrap-5.2.2-dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="fontawesome/css/all.min.css">
     <style>
         html {

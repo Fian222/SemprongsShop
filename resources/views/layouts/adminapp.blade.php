@@ -9,7 +9,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Halaman Administrator</title>
     <!-- Core theme CSS (includes Bootstrap)-->
-    <link rel="stylesheet" href="/bootstrap/bootstrap-5.2.2-dist/css/bootstrap.min.css">
     <link href="{{ asset('back/css/styles.css') }}" rel="stylesheet" />
     <link href="{{ asset('back/css/customadmin.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('fontawesome/css/all.min.css') }}">

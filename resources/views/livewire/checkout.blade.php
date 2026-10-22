@@ -34,7 +34,7 @@
                     {{ number_format($total_harga) }}</strong></p>
             <div class="d-flex">
                 <div class="flex-shrink-0">
-                    <img src="{{ url('build/assets/BCA.png') }}" alt="Bank BCA" width="60">
+                    <i class="fas fa-building-columns fa-3x" aria-hidden="true"></i>
                 </div>
                 <div class="flex-grow-1 ms-3">
                     <h5>Bank BCA</h5>
