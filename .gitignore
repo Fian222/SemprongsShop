@@ -1,3 +1,4 @@
+# Laravel
 /node_modules
 /public/build
 /public/hot
@@ -7,10 +8,25 @@
 .env
 .env.backup
 .phpunit.result.cache
+/.phpunit.cache
 Homestead.json
 Homestead.yaml
 auth.json
 npm-debug.log
 yarn-error.log
+
+# Podman / Docker (file env asli berisi password; .env.podman.example tetap di-commit)
+.env.podman
+compose.override.yaml
+docker-compose.override.yml
+
+# Claude Code / agent skills (setting pribadi & catatan kerja lokal)
+.claude/settings.local.json
+.claude/*.local.*
+/.scratch/
+
+# Editor & OS
 /.idea
 /.vscode
+.DS_Store
+Thumbs.db
