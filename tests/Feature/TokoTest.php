@@ -59,7 +59,7 @@ class TokoTest extends TestCase
 
         $this->get('/')->assertOk()->assertSee('Semprong Coklat');
         $this->get('/produk')->assertOk()->assertSee('Semprong Coklat');
-        $this->get(route('produk.detail', $barang->id))->assertOk()->assertSee('Rp. 15,000');
+        $this->get(route('produk.detail', $barang->id))->assertOk()->assertSee('Rp 15.000');
         $this->get('/login')->assertOk();
         $this->get('/register')->assertOk();
         $this->get('/admin/login')->assertOk();
@@ -129,6 +129,8 @@ class TokoTest extends TestCase
 
     public function test_alur_pesan_sampai_checkout()
     {
+        $this->travelTo(now()->setDate(2026, 10, 22)->setTime(9, 30));
+
         $user = User::factory()->create();
         $barang = $this->buatBarang();
 
@@ -147,7 +149,7 @@ class TokoTest extends TestCase
 
         Livewire::test(Navbar::class)->assertSet('jumlah', 1);
 
-        $this->get('/pesanann')->assertOk()->assertSee('Rp. 30,000');
+        $this->get('/pesanann')->assertOk()->assertSee('Rp 30.000');
 
         Livewire::test(Checkout::class)
             ->assertSet('total_harga', 30000)
@@ -159,7 +161,10 @@ class TokoTest extends TestCase
         $this->assertSame('1', (string) $pesanan->fresh()->status);
         $this->assertSame('Jl. Merdeka 1', $user->fresh()->alamat);
 
-        $this->get('/history')->assertOk()->assertSee('Belum Lunas');
+        $this->get('/history')->assertOk()
+            ->assertSee('Belum Lunas')
+            ->assertSee('22 Okt 2026, 09:30')
+            ->assertSee('Rp 30.000');
     }
 
     public function test_hapus_item_pesanan()
@@ -232,7 +237,7 @@ class TokoTest extends TestCase
             ->set('jumlah_tambah', 5)
             ->set('ubah_harga', 20000)
             ->call('edit', $barang->id)
-            ->assertSee('Rp. 20,000');
+            ->assertSee('Rp 20.000');
 
         $this->assertSame(15, (int) $barang->fresh()->stok_barang);
         $this->assertSame(20000, (int) $barang->fresh()->harga_barang);

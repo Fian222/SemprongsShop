@@ -1,18 +1,8 @@
-<style>
-    footer {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        margin-top: auto;
-    }
-</style>
-<footer>
-    <hr>
-    <div class="container">
-        <div class="row">
-            <div class="col text-center">
-                © Copyright @2022 Semprong
-            </div>
-        </div>
+<footer class="border-t border-line bg-surface">
+    <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-8 text-center text-sm text-ink-muted sm:flex-row sm:px-6 sm:text-left">
+        <a wire:navigate href="{{ route('home') }}" class="font-display text-lg font-semibold text-ink">
+            Semprong<span class="text-brand">Loves</span>
+        </a>
+        <p>&copy; 2022–{{ date('Y') }} Semprong. Dibuat dengan cinta dan mentega.</p>
     </div>
 </footer>

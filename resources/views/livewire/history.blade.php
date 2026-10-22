@@ -1,80 +1,41 @@
-<div class="container">
-    <div class="row mt-3">
-        <div class="col">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a wire:navigate href="{{ route('home') }}" class="text-dark"> Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">History</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
+<div class="mx-auto max-w-6xl px-4 pt-8 sm:px-6">
+    <x-breadcrumb :items="['Beranda' => route('home'), 'Riwayat' => null]" />
 
-    <div class="row">
-        <div class="col-md-12">
-            @if (session()->has('message'))
-                <div class="alert alert-success">
-                    {{ session('message') }}
-                </div>
-            @endif
-        </div>
-    </div>
+    <h1 class="mt-6 text-4xl font-bold">Riwayat pesanan</h1>
 
-    <div class="row mt-4">
-        <div class="col">
-            <table class="table text-center">
-                <thead>
-                    <tr>
-                        <td>No.</td>
-                        <td>Tanggal Pemesanan</td>
-                        <td>Kode Pemesanan</td>
-                        <td>Pesanan</td>
-                        <td>Jumlah Pesanan</td>
-                        <td>Status</td>
-                        <td><strong>Total Harga</strong></td>
-                        <td></td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $no = 1; ?>
-                    @forelse ($pesanan as $pesanan)
-                        <tr>
-                            <td>{{ $no++ }}</td>
-                            <td>{{ $pesanan->created_at }}</td>
-                            <td>{{ $pesanan->kode_pemesanan }}</td>
-                            <td>
-                                <?php $pesanan_detail = \App\Models\pesanandetail::where('id_pesanan', $pesanan->id)->get(); ?>
-                                @foreach ($pesanan_detail as $pesan)
-                                    <img src="{{ url('build/images') }}/{{ $pesan->barang->gambar }}" class="img-fluid"
-                                        width="50">
-                                    {{ $pesan->barang->nama_barang }}
-                                    <br>
-                                @endforeach
-                            </td>
-                            <td>
-                                <?php $pesanan_detail = \App\Models\pesanandetail::where('id_pesanan', $pesanan->id)->get(); ?>
-                                @foreach ($pesanan_detail as $pesan)
-                                    {{ $pesan->jumlah_pesanan }}
-                                    <br>
-                                @endforeach
-                            </td>
-                            <td>
-                                @if ($pesanan->status == 1)
-                                    Belum Lunas
-                                @else
-                                    Sudah Lunas
-                                @endif
-                            </td>
-                            <td><strong>Rp. {{ number_format($pesanan->total_harga) }}</strong></td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6">Data Kosong</td>
-                        </tr>
-                    @endforelse
+    <x-flash class="mt-6" />
 
-                </tbody>
-            </table>
-        </div>
+    <div class="mt-8 flex flex-col gap-4">
+        @forelse ($pesanan as $item)
+            <article wire:key="pesanan-{{ $item->id }}" class="card p-5 sm:p-6">
+                <header class="flex flex-wrap items-start justify-between gap-3 border-b border-line pb-4">
+                    <div>
+                        <p class="font-mono text-sm font-semibold">{{ $item->kode_pemesanan }}</p>
+                        <p class="text-sm text-ink-muted">@tanggal($item->created_at)</p>
+                    </div>
+                    <x-status-pesanan :status="$item->status" />
+                </header>
+
+                <ul class="flex flex-col gap-3 py-4">
+                    @foreach ($item->pesanandetail as $pesan)
+                        <li class="flex items-center gap-3">
+                            <img src="{{ url('build/images') }}/{{ $pesan->barang->gambar }}" alt=""
+                                class="size-12 rounded-lg object-cover">
+                            <span class="flex-1 text-sm font-medium">{{ $pesan->barang->nama_barang }}</span>
+                            <span class="text-sm text-ink-muted">× {{ $pesan->jumlah_pesanan }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+
+                <footer class="flex items-center justify-between border-t border-line pt-4">
+                    <span class="text-sm text-ink-muted">Total</span>
+                    <span class="text-lg font-bold">@rupiah($item->total_harga)</span>
+                </footer>
+            </article>
+        @empty
+            <div class="card">
+                <x-empty icon="history">Belum ada pesanan yang di-checkout.</x-empty>
+            </div>
+        @endforelse
     </div>
 </div>

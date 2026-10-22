@@ -1,58 +1,57 @@
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            @if (session()->has('message'))
-                <div class="alert alert-success">
-                    {{ session('message') }}
-                </div>
+<div class="max-w-2xl">
+    <a wire:navigate href="{{ route('admin.produk') }}" class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-brand">
+        <x-icon name="arrow-left" /> Kembali ke produk
+    </a>
+
+    <h1 class="mt-4 text-3xl font-bold">Tambah barang</h1>
+
+    <x-flash class="mt-6" />
+
+    <form wire:submit="tambah" class="card mt-6 flex flex-col gap-5 p-6 sm:p-8">
+        <div>
+            <label for="nama" class="label">Nama barang</label>
+            <input type="text" id="nama" required wire:model="nama" placeholder="mis. Semprong Pandan"
+                class="input @error('nama') input-invalid @enderror">
+            @error('nama')
+                <p class="field-error">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+                <label for="harga" class="label">Harga (Rp)</label>
+                <input type="number" id="harga" min="0" required wire:model="harga"
+                    class="input @error('harga') input-invalid @enderror">
+                @error('harga')
+                    <p class="field-error">{{ $message }}</p>
+                @enderror
+            </div>
+            <div>
+                <label for="stok" class="label">Stok</label>
+                <input type="number" id="stok" min="0" required wire:model="stok"
+                    class="input @error('stok') input-invalid @enderror">
+                @error('stok')
+                    <p class="field-error">{{ $message }}</p>
+                @enderror
+            </div>
+        </div>
+
+        <div>
+            <label for="gambar" class="label">Foto produk</label>
+            <input type="file" id="gambar" accept="image/*" required wire:model="gambar"
+                class="input @error('gambar') input-invalid @enderror">
+            <p class="mt-1.5 text-xs text-ink-muted">JPG atau PNG, maksimal 1 MB.</p>
+            @error('gambar')
+                <p class="field-error">{{ $message }}</p>
+            @enderror
+            <div wire:loading wire:target="gambar" class="mt-2 text-sm text-ink-muted">Mengunggah…</div>
+            @if ($gambar?->isPreviewable())
+                <img src="{{ $gambar->temporaryUrl() }}" alt="Pratinjau" class="mt-3 size-32 rounded-xl object-cover">
             @endif
         </div>
-    </div>
-    <h2>Tambah Barang
-    </h2>
-    <div class="mt-3">
-        <form wire:submit.prevent="tambah">
-            <div class="mb-3">
-                <label for="nama" class="form-label">Nama Barang</label>
-                <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama"
-                    name="nama" required wire:model="nama" value="{{ old('nama') }}">
-                @error('nama')
-                    <span class="invalid-feedback" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
-            </div>
-            <div class="mb-3">
-                <label for="harga" class="form-label">Harga</label>
-                <input type="number" class="form-control @error('harga') is-invalid @enderror" id="harga"
-                    name="harga" required wire:model="harga" value="{{ old('harga') }}">
-                @error('harga')
-                    <span class="invalid-feedback" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
-            </div>
-            <div class="mb-3">
-                <label for="stok" class="form-label">Stok</label>
-                <input type="number" class="form-control @error('stok') is-invalid @enderror" id="stok"
-                    name="stok" required wire:model="stok" value="{{ old('stok') }}">
-                @error('stok')
-                    <span class="invalid-feedback" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
-            </div>
-            <div class="mb-3">
-                <label for="gambar" class="form-label">Masukkan Gambar</label>
-                <input type="file" class="form-control @error('gambar') is-invalid @enderror" id="gambar"
-                    name="gambar" required wire:model="gambar">
-                @error('gambar')
-                    <span class="invalid-feedback" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
+
+        <button type="submit" class="btn btn-primary self-start" wire:loading.attr="disabled">
+            <x-icon name="plus" /> Simpan barang
+        </button>
+    </form>
 </div>

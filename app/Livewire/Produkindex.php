@@ -9,7 +9,6 @@ use Livewire\WithPagination;
 class Produkindex extends Component
 {
     use WithPagination;
-    protected $paginationTheme = 'bootstrap';
 
     public $search;
 
