@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Models\barang;
 use Livewire\Component;
@@ -32,7 +32,7 @@ class Produkdetailadmin extends Component
         }
         $product->stok_barang = $product->stok_barang + $this->jumlah_tambah;
         $product->update();
-        $this->emit('refreshComponent');
+        $this->dispatch('refreshComponent');
     }
 
     public function render()

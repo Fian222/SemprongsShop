@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Models\barang;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class Produkindex extends Component
+class Produkadmin extends Component
 {
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
@@ -15,7 +15,7 @@ class Produkindex extends Component
 
     protected $updateQueryString = ['search'];
 
-    public function updatingSearch()
+    public function updateSearch()
     {
         $this->resetPage();
     }
@@ -27,10 +27,10 @@ class Produkindex extends Component
         } else {
             $barangs = barang::paginate(6);
         }
-        return view('livewire.produkindex', [
+        return view('livewire.produkadmin', [
             'barangs' => $barangs
         ])
-            ->extends('layouts.app')
+            ->extends('layouts.adminapp')
             ->section('content');
     }
 }

@@ -11,4 +11,13 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    css: {
+        preprocessorOptions: {
+            scss: {
+                // Bootstrap 5 masih memakai @import & fungsi global Sass yang sudah deprecated
+                quietDeps: true,
+                silenceDeprecations: ['import'],
+            },
+        },
+    },
 });

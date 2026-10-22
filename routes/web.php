@@ -21,22 +21,22 @@ use App\Http\Controllers\DashboardController;
 
 Auth::routes();
 
-Route::get('/', \App\Http\Livewire\Home::class)->name('home');
-Route::get('/produk', \App\Http\Livewire\Produkindex::class)->name('produk');
-Route::get('/produkdetail{id}', \App\Http\Livewire\ProdukDetail::class)->name('produk.detail');
-Route::get('/pesanann', \App\Http\Livewire\Pesanann::class)->name('pesanann');
-Route::get('/checkout', \App\Http\Livewire\Checkout::class)->name('checkout');
-Route::get('/history', \App\Http\Livewire\History::class)->name('history');
+Route::get('/', \App\Livewire\Home::class)->name('home');
+Route::get('/produk', \App\Livewire\Produkindex::class)->name('produk');
+Route::get('/produkdetail{id}', \App\Livewire\ProdukDetail::class)->name('produk.detail');
+Route::get('/pesanann', \App\Livewire\Pesanann::class)->name('pesanann');
+Route::get('/checkout', \App\Livewire\Checkout::class)->name('checkout');
+Route::get('/history', \App\Livewire\History::class)->name('history');
 
 Route::prefix('admin')->group(function () {
     Route::get('/', [AdminLoginController::class, 'loginForm']);
     Route::get('/login', [AdminLoginController::class, 'loginForm'])->name('admin.login');
     Route::post('/login', [AdminLoginController::class, 'login'])->name('admin.login');
     Route::get('/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
-    Route::get('/dashboard', \App\Http\Livewire\Dashboard::class)->name('admin.dashboard');
-    Route::get('/pesananmasuk', \App\Http\Livewire\Pesananmasuk::class)->name('admin.pesanan');
-    Route::get('/produkadmin', \App\Http\Livewire\Produkadmin::class)->name('admin.produk');
-    Route::get('/riwayatpesanan', \App\Http\Livewire\Riwayatpesanan::class)->name('admin.riwayat');
-    Route::get('/produkdetail{id}', \App\Http\Livewire\Produkdetailadmin::class)->name('admin.detail');
-    Route::get('/tambahbarang', \App\Http\Livewire\Tambahbarang::class)->name('admin.tambah');
+    Route::get('/dashboard', \App\Livewire\Dashboard::class)->name('admin.dashboard');
+    Route::get('/pesananmasuk', \App\Livewire\Pesananmasuk::class)->name('admin.pesanan');
+    Route::get('/produkadmin', \App\Livewire\Produkadmin::class)->name('admin.produk');
+    Route::get('/riwayatpesanan', \App\Livewire\Riwayatpesanan::class)->name('admin.riwayat');
+    Route::get('/produkdetail{id}', \App\Livewire\Produkdetailadmin::class)->name('admin.detail');
+    Route::get('/tambahbarang', \App\Livewire\Tambahbarang::class)->name('admin.tambah');
 });
