@@ -1,0 +1,46 @@
+name: semprongsshop
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Containerfile
+    image: localhost/semprongsshop:latest
+    env_file: .env.podman
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: "3306"
+    ports:
+      - "${APP_PORT:-8090}:80"
+    volumes:
+      - uploads:/var/www/html/public/build/images
+      - storage:/var/www/html/storage
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: docker.io/library/mariadb:10.11
+    env_file: .env.podman
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - "127.0.0.1:${DB_FORWARD_PORT:-33061}:3306"
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: docker.io/library/phpmyadmin:5
+    profiles: ["tools"]
+    environment:
+      PMA_HOST: db
+      PMA_PORT: "3306"
+    ports:
+      - "${PMA_PORT:-8091}:80"
+    depends_on:
+      - db
+
+volumes:
+  dbdata:
+  uploads:
+  storage:
