@@ -1,1 +1,1 @@
-Semprong<span class="text-brand">Loves</span>
+Semprong <span class="text-brand">Shop</span>
