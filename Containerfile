@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---------- Stage 1: build frontend assets (Vite) ----------
-FROM docker.io/library/node:18-alpine AS assets
+FROM docker.io/library/node:24-alpine AS assets
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -24,8 +24,8 @@ RUN composer install \
 COPY . .
 RUN composer dump-autoload --no-dev --optimize --no-scripts
 
-# ---------- Stage 3: runtime (PHP 8.1 + Apache) ----------
-FROM docker.io/library/php:8.1-apache AS runtime
+# ---------- Stage 3: runtime (PHP 8.4 + Apache) ----------
+FROM docker.io/library/php:8.4-apache AS runtime
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
