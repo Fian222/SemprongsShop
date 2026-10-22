@@ -169,6 +169,51 @@ class TokoTest extends TestCase
             ->assertSee('Rp 30.000');
     }
 
+    protected function buatPesananDiKeranjang(User $user): pesanan
+    {
+        $pesanan = pesanan::create(['id_user' => $user->id, 'total_harga' => 15000]);
+        pesanandetail::create([
+            'id_barang' => $this->buatBarang()->id,
+            'id_pesanan' => $pesanan->id,
+            'jumlah_pesanan' => 1,
+            'total_harga' => 15000,
+        ]);
+
+        return $pesanan;
+    }
+
+    public function test_checkout_menolak_nomor_hp_yang_terlalu_panjang()
+    {
+        $user = User::factory()->create();
+        $pesanan = $this->buatPesananDiKeranjang($user);
+        $this->actingAs($user);
+
+        Livewire::test(Checkout::class)
+            ->set('nohp', '08515591224124')
+            ->set('alamat', 'Jl. Merdeka 1')
+            ->call('checkout')
+            ->assertHasErrors('nohp');
+
+        $this->assertSame('0', (string) $pesanan->fresh()->status);
+    }
+
+    public function test_checkout_menerima_nomor_hp_dengan_spasi_dan_tanda_hubung()
+    {
+        $user = User::factory()->create();
+        $pesanan = $this->buatPesananDiKeranjang($user);
+        $this->actingAs($user);
+
+        Livewire::test(Checkout::class)
+            ->set('nohp', '0812-345 678')
+            ->set('alamat', 'Jl. Merdeka 1')
+            ->call('checkout')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('history'));
+
+        $this->assertSame('0812345678', $user->fresh()->notelp);
+        $this->assertSame('1', (string) $pesanan->fresh()->status);
+    }
+
     public function test_hapus_item_pesanan()
     {
         $user = User::factory()->create();

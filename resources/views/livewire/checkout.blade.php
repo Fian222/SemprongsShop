@@ -36,10 +36,12 @@
                 <div>
                     <label for="nohp" class="label">No. HP</label>
                     <input type="tel" id="nohp" wire:model="nohp" autocomplete="tel" autofocus
-                        placeholder="08xxxxxxxxxx" pattern="(\+62|62|0)8[1-9][0-9]{9,10}$"
+                        placeholder="0812-3456-7890" aria-describedby="nohp-petunjuk"
                         class="input @error('nohp') input-invalid @enderror">
                     @error('nohp')
                         <p class="field-error">{{ $message }}</p>
+                    @else
+                        <p id="nohp-petunjuk" class="mt-1.5 text-xs text-ink-muted">Nomor HP aktif, 10–13 digit, diawali 08 atau +62.</p>
                     @enderror
                 </div>
 
