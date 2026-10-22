@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Models\barang;
 use App\Models\User;
@@ -48,7 +48,7 @@ class Checkout extends Component
         $pesanan->status = 1;
         $pesanan->update();
 
-        $this->emit('masukKeranjang');
+        $this->dispatch('masukKeranjang');
 
         return redirect()->route('history');
         session()->flash('message', 'Berhasil Checkout');

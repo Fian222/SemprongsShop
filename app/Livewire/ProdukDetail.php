@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use App\Models\barang;
 use App\Models\pesanan;
@@ -70,7 +70,7 @@ class ProdukDetail extends Component
             $barang = barang::where('id', $value->id_barang)->update($pdetail);
         }
 
-        $this->emit('masukKeranjang');
+        $this->dispatch('masukKeranjang');
 
         session()->flash('message', 'Sukses Masuk Pesanan');
 

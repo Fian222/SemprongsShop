@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\pesanan;
@@ -26,7 +26,7 @@ class Pesanann extends Component
                 $pesanan->total_harga = $pesanan->total_harga - $pesanan_detail->total_harga;
                 $pesanan->update();
             }
-            $this->emit('masukKeranjang');
+            $this->dispatch('masukKeranjang');
             session()->flash('message', 'Pesanan dihapus');
         }
     }

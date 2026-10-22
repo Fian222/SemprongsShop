@@ -5,7 +5,7 @@
         </div>
         <div class="col-md-4">
             <div class="input-group mb-3">
-                <input wire:model="search" type="text" class="form-control" placeholder="Cari" aria-label="Cari"
+                <input wire:model.live="search" type="text" class="form-control" placeholder="Cari" aria-label="Cari"
                     aria-describedby="basic-addon1">
                 <span class="input-group-text" id="basic-addon1">
                     <i class="fas fa-search"></i>
