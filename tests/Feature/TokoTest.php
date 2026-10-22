@@ -57,7 +57,9 @@ class TokoTest extends TestCase
     {
         $barang = $this->buatBarang();
 
-        $this->get('/')->assertOk()->assertSee('Semprong Coklat');
+        $this->get('/')->assertOk()->assertSee('Semprong Coklat')
+            ->assertSee('<title>Semprong Shop', false)
+            ->assertDontSee('SemprongLoves');
         $this->get('/produk')->assertOk()->assertSee('Semprong Coklat');
         $this->get(route('produk.detail', $barang->id))->assertOk()->assertSee('Rp 15.000');
         $this->get('/login')->assertOk();

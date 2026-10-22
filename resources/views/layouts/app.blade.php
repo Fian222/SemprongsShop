@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#fbf6ee" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#17110d" media="(prefers-color-scheme: dark)">
 
-    <title>SemprongLoves — Kue semprong renyah buatan rumah</title>
+    <title>Semprong Shop — Kue semprong renyah buatan rumah</title>
 
     @include('layouts.fonts')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
