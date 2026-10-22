@@ -14,7 +14,7 @@
     <section class="produk mt-5">
         <h1>
             <strong>Produk Terbaik</strong>
-            <a href="{{ route('produk') }}" class="btn btn-dark lihat"><i class="fas fa-eye"></i> Lihat Semua</a>
+            <a wire:navigate href="{{ route('produk') }}" class="btn btn-dark lihat"><i class="fas fa-eye"></i> Lihat Semua</a>
         </h1>
         <div class="row">
             @foreach ($barangs as $barang)
@@ -30,7 +30,7 @@
                             </div>
                             <div class="row mt-2">
                                 <div class="col-md-12">
-                                    <a href="{{ route('produk.detail', $barang->id) }}"
+                                    <a wire:navigate href="{{ route('produk.detail', $barang->id) }}"
                                         class="btn btn-dark btn-block w-100"><i class="fa fa-eye"></i> Detail</a>
                                 </div>
                             </div>

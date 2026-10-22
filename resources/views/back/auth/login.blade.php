@@ -59,7 +59,6 @@
             </div>
         </main>
     </div>
-    <script src="/bootstrap/bootstrap-5.2.2-dist/js/bootstrap.min.js"></script>
 </body>
 
 </html>

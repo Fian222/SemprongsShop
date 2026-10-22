@@ -6,6 +6,7 @@ use App\Livewire\Checkout;
 use App\Livewire\Navbar;
 use App\Livewire\Pesananmasuk;
 use App\Livewire\Pesanann;
+use App\Livewire\Produkadmin;
 use App\Livewire\ProdukDetail;
 use App\Livewire\Produkdetailadmin;
 use App\Livewire\Produkindex;
@@ -81,6 +82,19 @@ class TokoTest extends TestCase
             ->set('search', 'Keju')
             ->assertSee('Semprong Keju')
             ->assertDontSee('Semprong Coklat');
+    }
+
+    public function test_pencarian_produk_admin_kembali_ke_halaman_pertama()
+    {
+        foreach (range(1, 7) as $i) {
+            $this->buatBarang(['nama_barang' => 'Semprong '.$i]);
+        }
+
+        Livewire::test(Produkadmin::class)
+            ->call('gotoPage', 2)
+            ->assertSet('paginators.page', 2)
+            ->set('search', 'Semprong')
+            ->assertSet('paginators.page', 1);
     }
 
     public function test_alur_pesan_sampai_checkout()

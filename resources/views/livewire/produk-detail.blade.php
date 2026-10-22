@@ -3,8 +3,8 @@
         <div class="col">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-dark"> Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('produk') }}" class="text-dark"> Produk</a></li>
+                    <li class="breadcrumb-item"><a wire:navigate href="{{ route('home') }}" class="text-dark"> Home</a></li>
+                    <li class="breadcrumb-item"><a wire:navigate href="{{ route('produk') }}" class="text-dark"> Produk</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Produk detail</li>
                 </ol>
             </nav>

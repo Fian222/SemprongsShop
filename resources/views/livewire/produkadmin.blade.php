@@ -13,7 +13,7 @@
             </div>
         </div>
     </div>
-    <a href="{{ route('admin.tambah') }}" class="btn btn-success btn-block mt-2" style="width: 20%">Tambah Barang</a>
+    <a wire:navigate href="{{ route('admin.tambah') }}" class="btn btn-success btn-block mt-2" style="width: 20%">Tambah Barang</a>
 
     <section class="produk mb-5">
 
@@ -31,7 +31,7 @@
                             </div>
                             <div class="row mt-2">
                                 <div class="col-md-12">
-                                    <a href="{{ route('admin.detail', $barang->id) }}"
+                                    <a wire:navigate href="{{ route('admin.detail', $barang->id) }}"
                                         class="btn btn-dark btn-block w-100">Edit</a>
                                 </div>
                             </div>
