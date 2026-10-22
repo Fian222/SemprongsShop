@@ -15,7 +15,7 @@ class Produkadmin extends Component
 
     protected $updateQueryString = ['search'];
 
-    public function updateSearch()
+    public function updatingSearch()
     {
         $this->resetPage();
     }
