@@ -33,10 +33,12 @@ Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminLoginController::class, 'loginForm'])->name('admin.login');
     Route::post('/login', [AdminLoginController::class, 'login'])->name('admin.login');
     Route::get('/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
-    Route::get('/dashboard', \App\Livewire\Dashboard::class)->name('admin.dashboard');
-    Route::get('/pesananmasuk', \App\Livewire\Pesananmasuk::class)->name('admin.pesanan');
-    Route::get('/produkadmin', \App\Livewire\Produkadmin::class)->name('admin.produk');
-    Route::get('/riwayatpesanan', \App\Livewire\Riwayatpesanan::class)->name('admin.riwayat');
-    Route::get('/produkdetail{id}', \App\Livewire\Produkdetailadmin::class)->name('admin.detail');
-    Route::get('/tambahbarang', \App\Livewire\Tambahbarang::class)->name('admin.tambah');
+    Route::middleware('adminMiddle')->group(function () {
+        Route::get('/dashboard', \App\Livewire\Dashboard::class)->name('admin.dashboard');
+        Route::get('/pesananmasuk', \App\Livewire\Pesananmasuk::class)->name('admin.pesanan');
+        Route::get('/produkadmin', \App\Livewire\Produkadmin::class)->name('admin.produk');
+        Route::get('/riwayatpesanan', \App\Livewire\Riwayatpesanan::class)->name('admin.riwayat');
+        Route::get('/produkdetail{id}', \App\Livewire\Produkdetailadmin::class)->name('admin.detail');
+        Route::get('/tambahbarang', \App\Livewire\Tambahbarang::class)->name('admin.tambah');
+    });
 });

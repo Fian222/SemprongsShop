@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\AdminMiddleware;
 use Carbon\Carbon;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,5 +28,8 @@ class AppServiceProvider extends ServiceProvider
     {
         config(['app.local' => 'id']);
         Carbon::setLocale('id');
+
+        // Terapkan juga ke request update Livewire (wire:click, wire:submit) di halaman admin
+        Livewire::addPersistentMiddleware([AdminMiddleware::class]);
     }
 }
