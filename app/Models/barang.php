@@ -2,18 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+#[Fillable(['nama_barang', 'harga_barang', 'stok_barang', 'gambar', 'id_admin'])]
 class barang extends Model
 {
-    protected $fillable = [
-        'nama_barang',
-        'harga_barang',
-        'stok_barang',
-        'gambar',
-        'id_admin',
-    ];
     public function pesanan()
     {
         return $this->hasMany(pesanan::class, 'id_barang', 'id');

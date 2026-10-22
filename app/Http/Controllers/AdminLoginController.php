@@ -6,17 +6,24 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use App\Models\admin;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
 
-class AdminLoginController extends Controller
+class AdminLoginController extends Controller implements HasMiddleware
 {
     use AuthenticatesUsers;
     protected $guard = 'adminMiddle';
     protected $redirectTo = 'admin/home';
 
-    public function __construct()
+    /**
+     * Get the middleware that should be assigned to the controller.
+     */
+    public static function middleware(): array
     {
-        $this->middleware('guest')->except('logout');
+        return [
+            new Middleware('guest', except: ['logout']),
+        ];
     }
 
     public function guard()
@@ -34,7 +41,7 @@ class AdminLoginController extends Controller
 
     public function login(Request $request)
     {
-        $this->validate($request, [
+        $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
