@@ -32,9 +32,14 @@ class Checkout extends Component
 
     public function checkout()
     {
+        // user sering menulis nomor dengan spasi/tanda hubung, mis. 0812-3456-7890
+        $this->nohp = preg_replace('/[\s\-]/', '', (string) $this->nohp);
+
         $this->validate([
-            'nohp' => 'required',
+            'nohp' => ['required', 'regex:/^(\+62|62|0)8[1-9][0-9]{7,10}$/'],
             'alamat' => 'required'
+        ], [
+            'nohp.regex' => 'No. HP harus diawali 08 / 62 / +62 dan terdiri dari 10–13 digit.',
         ]);
 
         // simpan nomor hp dan alamat ke user
