@@ -1,8 +1,13 @@
 <div class="container">
 
     {{-- banner --}}
-    <div class="banner text-center">
-        <img src="{{ url('build/image/bannersemprong.jpg') }}" alt="">
+    <div class="banner text-center mt-4">
+        <img src="{{ asset('images/banner-semprong.jpg') }}" alt="Kue semprong di atas piring"
+            class="w-100 rounded shadow" style="height: 360px; object-fit: cover;">
+        <small class="d-block text-muted text-end mt-1">
+            Foto: <a href="https://commons.wikimedia.org/wiki/File:Kuih_Kapit_(53564062798).jpg" class="text-muted"
+                target="_blank" rel="noopener">Choo Yut Shing</a>, CC BY 2.0
+        </small>
     </div>
 
     {{-- product --}}
