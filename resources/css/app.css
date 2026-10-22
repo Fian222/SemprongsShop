@@ -28,6 +28,7 @@
     --color-warn-soft: #fef3c7;
     --color-bad: #be123c;
     --color-bad-soft: #ffe4e6;
+    --color-on-bad: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -50,6 +51,7 @@
         --color-warn-soft: #3a2e10;
         --color-bad: #fda4af;
         --color-bad-soft: #3f1820;
+        --color-on-bad: #2a0d13;
     }
 }
 
@@ -84,7 +86,7 @@
         @apply border border-line bg-surface text-ink hover:bg-surface-muted;
     }
     .btn-danger {
-        @apply bg-bad-soft text-bad hover:bg-bad hover:text-white;
+        @apply bg-bad-soft text-bad hover:bg-bad hover:text-on-bad;
     }
     .btn-sm {
         @apply px-3.5 py-1.5 text-xs;

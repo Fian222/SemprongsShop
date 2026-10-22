@@ -46,7 +46,7 @@
                 </button>
             </div>
             <p class="text-xs text-ink-muted">
-                Menampilkan {{ $paginator->firstItem() }}–{{ $paginator->lastItem() }} dari {{ $paginator->total() }} produk
+                Menampilkan {{ $paginator->firstItem() }}–{{ $paginator->lastItem() }} dari {{ $paginator->total() }}
             </p>
         </nav>
     @endif

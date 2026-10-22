@@ -13,7 +13,7 @@
             @if ($product->stok_barang >= 1)
                 <span class="badge badge-ok self-start"><x-icon name="check" class="size-3" /> Tersedia</span>
             @else
-                <span class="badge badge-bad self-start"><x-icon name="x" class="size-3" /> Stok Habis</span>
+                <span class="badge badge-bad self-start"><x-icon name="x" class="size-3" /> Stok habis</span>
             @endif
 
             <h1 class="mt-4 text-4xl font-bold">{{ $product->nama_barang }}</h1>

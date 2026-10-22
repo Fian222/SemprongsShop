@@ -30,7 +30,7 @@
         class="fixed inset-y-0 left-0 z-50 flex w-64 -translate-x-full flex-col border-r border-line bg-surface transition-transform data-open:translate-x-0 lg:translate-x-0">
         <div class="flex h-16 items-center px-6">
             <a wire:navigate href="{{ route('admin.dashboard') }}" class="font-display text-xl font-bold">
-                Semprong<span class="text-brand">Loves</span>
+                <x-logo />
             </a>
             <span class="badge ml-2 bg-surface-muted text-ink-muted">Admin</span>
         </div>

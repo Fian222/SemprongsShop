@@ -14,7 +14,7 @@
 <body class="grid min-h-dvh place-items-center px-4 py-12">
     <main class="w-full max-w-md">
         <p class="text-center font-display text-2xl font-bold">
-            Semprong<span class="text-brand">Loves</span>
+            <x-logo />
         </p>
         <div class="card mt-6 p-6 sm:p-8">
             <h1 class="text-3xl font-bold">Login admin</h1>

@@ -12,7 +12,7 @@
 <header x-data="{ open: false }" class="sticky top-0 z-40 border-b border-line bg-canvas/85 backdrop-blur">
     <nav class="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
         <a wire:navigate href="{{ route('home') }}" class="font-display text-xl font-bold">
-            Semprong<span class="text-brand">Loves</span>
+            <x-logo />
         </a>
 
         <ul class="ml-6 hidden items-center gap-1 md:flex">
