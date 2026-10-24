@@ -1,66 +1,59 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Semprong Shop
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+An online shop for semprong, the traditional Indonesian rolled wafer. Customers browse the flavours, order and check out; an admin manages products and confirms orders.
 
-## About Laravel
+![The shop's home page](docs/screenshot.webp)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+I first built it in 2021 as SemprongLoves on Laravel 9. In 2026 I brought it up to date: Laravel 13 and Livewire 4, a new interface in Tailwind CSS 4, admin pages properly protected, tests for the main flows, and a container setup for Podman.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**For customers**
 
-## Learning Laravel
+- Browse and search products, with each product's flavour, price and stock
+- Add a product to an order in the quantity they want, and remove items
+- Check out with a delivery address and phone number
+- See past orders
+- Register and sign in
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**For the admin**
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- A dashboard with the number of orders and customers, and the customer list
+- Incoming orders, confirmed one by one
+- Add products with a photo, and change their stock and price
+- Order history
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+The admin pages sit behind their own sign-in and middleware, which also covers Livewire's actions on those pages, so an action can't run after the admin signs out.
 
-## Laravel Sponsors
+## Stack
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Laravel 13 and Livewire 4 on PHP 8.4, MariaDB 10.11, Tailwind CSS 4 built with Vite 8. The container image is built in three stages: Node 24 builds the assets, Composer installs the dependencies, and PHP 8.4 with Apache serves the app.
 
-### Premium Partners
+## Running it with Podman
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+```sh
+cp .env.podman.example .env.podman
+```
 
-## Contributing
+Fill in `APP_KEY` in `.env.podman`; the file shows the command that generates one. Then:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```sh
+podman compose up -d
+```
 
-## Code of Conduct
+The shop runs at http://localhost:8090 (set `APP_PORT` to change it). On start, the container waits for the database, runs the migrations and seeds the admin account from `database/seeders/AdminSeeder.php`. The admin signs in at `/admin/login`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+`podman compose --profile tools up -d` also starts phpMyAdmin at http://localhost:8091.
 
-## Security Vulnerabilities
+## Tests
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+With PHP 8.4 (including the `pdo_sqlite` extension) and Composer:
 
-## License
+```sh
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan test
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The tests run against an in-memory SQLite database. They cover the public pages, registration and sign-in, product search, the order flow through to checkout (including phone number validation), the admin's product and order screens, keeping customers and signed-out visitors away from the admin pages, and the rupiah and date formatting.
