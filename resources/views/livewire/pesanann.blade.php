@@ -24,19 +24,18 @@
             <ul class="card divide-y divide-line">
                 @foreach ($pesanan_details as $pesan)
                     <li wire:key="detail-{{ $pesan->id }}" class="flex items-center gap-4 p-4">
-                        <img src="{{ url('build/images') }}/{{ $pesan->barang->gambar }}" alt=""
-                            class="size-20 shrink-0 rounded-xs bg-surface-muted object-cover">
+                        <x-foto-produk :foto="$pesan->varian->produk->fotoUtama" class="size-20 shrink-0 rounded-xs bg-surface-muted" />
                         <div class="min-w-0 flex-1">
                             <h2 class="truncate text-[15px] font-medium tracking-normal">
-                                <a wire:navigate href="{{ route('produk.detail', $pesan->barang->id) }}" class="hover:underline">{{ $pesan->barang->nama_barang }}</a>
+                                <a wire:navigate href="{{ route('produk.detail', $pesan->varian->produk->slug) }}" class="hover:underline">{{ $pesan->varian->produk->nama }}</a>
                             </h2>
                             <p class="mt-0.5 text-sm text-ink-muted tabular-nums">
-                                {{ $pesan->jumlah_pesanan }} × @rupiah($pesan->barang->harga_barang)
+                                {{ $pesan->varian->nama }} · {{ $pesan->jumlah_pesanan }} × @rupiah($pesan->varian->harga)
                             </p>
                             <p class="price mt-1.5 text-base">@rupiah($pesan->total_harga)</p>
                         </div>
                         <button type="button" wire:click="destroy({{ $pesan->id }})" wire:loading.attr="disabled"
-                            class="btn btn-danger btn-icon" aria-label="Hapus {{ $pesan->barang->nama_barang }} dari tas belanja">
+                            class="btn btn-danger btn-icon" aria-label="Hapus {{ $pesan->varian->produk->nama }} dari tas belanja">
                             <x-icon name="trash" class="size-[18px]" />
                         </button>
                     </li>

@@ -2,24 +2,20 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Admin\DaftarProduk;
 use App\Livewire\Checkout;
 use App\Livewire\Navbar;
 use App\Livewire\Pesananmasuk;
 use App\Livewire\Pesanann;
-use App\Livewire\Produkadmin;
 use App\Livewire\ProdukDetail;
-use App\Livewire\Produkdetailadmin;
-use App\Livewire\Produkindex;
-use App\Livewire\Tambahbarang;
 use App\Models\admin;
-use App\Models\barang;
 use App\Models\pesanan;
 use App\Models\pesanandetail;
+use App\Models\Produk;
 use App\Models\User;
+use App\Models\Varian;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -42,26 +38,22 @@ class TokoTest extends TestCase
         ]);
     }
 
-    protected function buatBarang(array $data = []): barang
+    protected function buatVarian(array $data = []): Varian
     {
-        return barang::create(array_merge([
-            'id_admin' => $this->admin->id,
-            'nama_barang' => 'Semprong Coklat',
-            'harga_barang' => 15000,
-            'stok_barang' => 10,
-            'gambar' => 'coklat.jpg',
-        ], $data));
+        $produk = Produk::factory()->create(['nama' => 'Semprong Coklat', 'slug' => 'semprong-coklat-'.Produk::count()]);
+
+        return Varian::factory()->for($produk)->create(array_merge(['nama' => 'Toples kecil', 'harga' => 15000, 'stok' => 10], $data));
     }
 
     public function test_halaman_publik_bisa_dibuka()
     {
-        $barang = $this->buatBarang();
+        $varian = $this->buatVarian();
 
         $this->get('/')->assertOk()->assertSee('Semprong Coklat')
             ->assertSee('<title>Semprong Shop', false)
             ->assertDontSee('SemprongLoves');
         $this->get('/produk')->assertOk()->assertSee('Semprong Coklat');
-        $this->get(route('produk.detail', $barang->id))->assertOk()->assertSee('Rp 15.000');
+        $this->get(route('produk.detail', $varian->produk->slug))->assertOk()->assertSee('Rp 15.000');
         $this->get('/login')->assertOk();
         $this->get('/register')->assertOk();
         $this->get('/admin/login')->assertOk();
@@ -103,29 +95,14 @@ class TokoTest extends TestCase
         $this->get('/history')->assertRedirect(route('login'));
     }
 
-    public function test_pencarian_produk()
-    {
-        $this->buatBarang(['nama_barang' => 'Semprong Coklat']);
-        $this->buatBarang(['nama_barang' => 'Semprong Keju']);
-
-        Livewire::test(Produkindex::class)
-            ->assertSee('Semprong Coklat')
-            ->assertSee('Semprong Keju')
-            ->set('search', 'Keju')
-            ->assertSee('Semprong Keju')
-            ->assertDontSee('Semprong Coklat');
-    }
-
     public function test_pencarian_produk_admin_kembali_ke_halaman_pertama()
     {
-        foreach (range(1, 7) as $i) {
-            $this->buatBarang(['nama_barang' => 'Semprong '.$i]);
-        }
+        Produk::factory()->count(13)->create();
 
-        Livewire::test(Produkadmin::class)
+        Livewire::test(DaftarProduk::class)
             ->call('gotoPage', 2)
             ->assertSet('paginators.page', 2)
-            ->set('search', 'Semprong')
+            ->set('cari', 'Semprong')
             ->assertSet('paginators.page', 1);
     }
 
@@ -134,11 +111,11 @@ class TokoTest extends TestCase
         $this->travelTo(now()->setDate(2026, 10, 22)->setTime(9, 30));
 
         $user = User::factory()->create();
-        $barang = $this->buatBarang();
+        $varian = $this->buatVarian();
 
         $this->actingAs($user);
 
-        Livewire::test(ProdukDetail::class, ['id' => $barang->id])
+        Livewire::test(ProdukDetail::class, ['slug' => $varian->produk->slug])
             ->set('jumlah_pesanan', 2)
             ->call('masukkankeranjang')
             ->assertDispatched('masukKeranjang')
@@ -147,7 +124,7 @@ class TokoTest extends TestCase
         $pesanan = pesanan::where('id_user', $user->id)->where('status', 0)->firstOrFail();
         $this->assertSame(30000, (int) $pesanan->total_harga);
         $this->assertSame('SP-'.$pesanan->id, $pesanan->kode_pemesanan);
-        $this->assertSame(8, (int) $barang->fresh()->stok_barang);
+        $this->assertSame(8, $varian->fresh()->stok);
 
         Livewire::test(Navbar::class)->assertSet('jumlah', 1);
 
@@ -169,11 +146,26 @@ class TokoTest extends TestCase
             ->assertSee('Rp 30.000');
     }
 
+    public function test_masukkan_ke_tas_menolak_jumlah_melebihi_stok_varian()
+    {
+        $varian = $this->buatVarian(['stok' => 3]);
+        $this->actingAs(User::factory()->create());
+
+        Livewire::test(ProdukDetail::class, ['slug' => $varian->produk->slug])
+            ->set('jumlah_pesanan', 4)
+            ->call('masukkankeranjang')
+            ->assertHasErrors('jumlah_pesanan')
+            ->assertSee('Stok Toples kecil tinggal 3.');
+
+        $this->assertSame(3, $varian->fresh()->stok);
+        $this->assertSame(0, pesanan::count());
+    }
+
     protected function buatPesananDiKeranjang(User $user): pesanan
     {
         $pesanan = pesanan::create(['id_user' => $user->id, 'total_harga' => 15000]);
         pesanandetail::create([
-            'id_barang' => $this->buatBarang()->id,
+            'id_varian' => $this->buatVarian()->id,
             'id_pesanan' => $pesanan->id,
             'jumlah_pesanan' => 1,
             'total_harga' => 15000,
@@ -217,10 +209,9 @@ class TokoTest extends TestCase
     public function test_hapus_item_pesanan()
     {
         $user = User::factory()->create();
-        $barang = $this->buatBarang();
         $pesanan = pesanan::create(['id_user' => $user->id, 'total_harga' => 15000, 'status' => 0]);
         $detail = pesanandetail::create([
-            'id_barang' => $barang->id,
+            'id_varian' => $this->buatVarian()->id,
             'id_pesanan' => $pesanan->id,
             'jumlah_pesanan' => 1,
             'total_harga' => 15000,
@@ -238,16 +229,17 @@ class TokoTest extends TestCase
 
     public function test_halaman_admin_bisa_dibuka()
     {
-        $barang = $this->buatBarang();
+        $varian = $this->buatVarian();
 
         $this->actingAs($this->admin, 'adminMiddle');
 
         $this->get('/admin/dashboard')->assertOk()->assertSee('Selamat Datang, Admin');
         $this->get('/admin/pesananmasuk')->assertOk();
         $this->get('/admin/riwayatpesanan')->assertOk();
-        $this->get('/admin/produkadmin')->assertOk()->assertSee('Semprong Coklat');
-        $this->get(route('admin.detail', $barang->id))->assertOk();
-        $this->get('/admin/tambahbarang')->assertOk();
+        $this->get('/admin/kategori')->assertOk();
+        $this->get('/admin/produk')->assertOk()->assertSee('Semprong Coklat');
+        $this->get(route('admin.produk.ubah', $varian->produk))->assertOk()->assertSee('Toples kecil');
+        $this->get('/admin/produk/baru')->assertOk();
     }
 
     public function test_login_admin()
@@ -256,38 +248,6 @@ class TokoTest extends TestCase
             ->assertRedirect(route('admin.dashboard'));
 
         $this->assertAuthenticatedAs($this->admin, 'adminMiddle');
-    }
-
-    public function test_admin_tambah_barang()
-    {
-        Storage::fake('public_uploads');
-
-        $this->actingAs($this->admin, 'adminMiddle');
-
-        Livewire::test(Tambahbarang::class)
-            ->set('nama', 'Semprong Pandan')
-            ->set('harga', 12000)
-            ->set('stok', 5)
-            ->set('gambar', UploadedFile::fake()->image('pandan.jpg'))
-            ->call('tambah')
-            ->assertHasNoErrors();
-
-        Storage::disk('public_uploads')->assertExists('images/Semprong Pandan.jpg');
-        $this->assertDatabaseHas('barangs', ['nama_barang' => 'Semprong Pandan', 'id_admin' => $this->admin->id]);
-    }
-
-    public function test_admin_ubah_stok_dan_harga()
-    {
-        $barang = $this->buatBarang();
-
-        Livewire::test(Produkdetailadmin::class, ['id' => $barang->id])
-            ->set('jumlah_tambah', 5)
-            ->set('ubah_harga', 20000)
-            ->call('edit', $barang->id)
-            ->assertSee('Rp 20.000');
-
-        $this->assertSame(15, (int) $barang->fresh()->stok_barang);
-        $this->assertSame(20000, (int) $barang->fresh()->harga_barang);
     }
 
     public function test_admin_konfirmasi_pesanan()

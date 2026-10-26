@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['id_barang', 'id_pesanan', 'jumlah_pesanan', 'id_user', 'total_harga'])]
+// Item pesanan lama. Menunjuk ke varian sampai keranjang (#14) dan checkout (#15) menggantikannya.
+#[Fillable(['id_varian', 'id_pesanan', 'jumlah_pesanan', 'id_user', 'total_harga'])]
 class pesanandetail extends Model
 {
     public function pesanan()
@@ -14,8 +15,8 @@ class pesanandetail extends Model
         return $this->belongsTo(pesanan::class, 'id_pesanan', 'id');
     }
 
-    public function barang()
+    public function varian()
     {
-        return $this->belongsTo(barang::class, 'id_barang', 'id');
+        return $this->belongsTo(Varian::class, 'id_varian', 'id');
     }
 }

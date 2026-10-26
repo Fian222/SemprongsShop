@@ -179,6 +179,15 @@
         @apply bg-ink text-canvas;
     }
 
+    /* tombol filter bersudut 2px, mis. kategori di katalog */
+    .chip {
+        @apply inline-flex h-10 shrink-0 items-center rounded-xs border border-line px-4 text-sm whitespace-nowrap text-ink-muted
+            transition-colors hover:border-ink hover:text-ink;
+    }
+    .chip-on {
+        @apply border-ink bg-ink text-canvas hover:text-canvas;
+    }
+
     .price {
         @apply font-medium tabular-nums;
     }

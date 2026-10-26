@@ -17,7 +17,8 @@
         ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'layout-dashboard'],
         ['label' => 'Pesanan masuk', 'route' => 'admin.pesanan', 'icon' => 'inbox'],
         ['label' => 'Riwayat pesanan', 'route' => 'admin.riwayat', 'icon' => 'history'],
-        ['label' => 'Produk', 'route' => 'admin.produk', 'icon' => 'package', 'aktif' => ['admin.produk', 'admin.detail', 'admin.tambah']],
+        ['label' => 'Produk', 'route' => 'admin.produk', 'icon' => 'package', 'aktif' => ['admin.produk', 'admin.produk.*']],
+        ['label' => 'Kategori', 'route' => 'admin.kategori', 'icon' => 'tag'],
     ];
     $admin = Auth::guard('adminMiddle')->user();
 @endphp

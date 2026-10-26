@@ -24,7 +24,7 @@
         <div class="ml-auto flex items-center gap-2">
             <form action="{{ route('produk') }}" role="search" class="relative hidden lg:block">
                 <x-icon name="search" class="pointer-events-none absolute top-1/2 left-0 size-[18px] -translate-y-1/2 text-ink-muted" />
-                <input type="search" name="search" value="{{ $rute === 'produk' ? request('search') : '' }}" placeholder="Cari rasa"
+                <input type="search" name="cari" value="{{ $rute === 'produk' ? request('cari') : '' }}" placeholder="Cari rasa"
                     aria-label="Cari produk" class="h-10 w-44 border-b border-line-strong bg-transparent pl-7 text-[15px] placeholder:text-ink-muted/80 focus:border-ink focus:outline-2 focus:outline-offset-2 focus:outline-gold">
             </form>
 
@@ -71,7 +71,7 @@
         <div class="wrap flex flex-col gap-1 py-4">
             <form action="{{ route('produk') }}" role="search" class="relative mb-2">
                 <x-icon name="search" class="pointer-events-none absolute top-1/2 left-3.5 size-5 -translate-y-1/2 text-ink-muted" />
-                <input type="search" name="search" placeholder="Cari rasa" aria-label="Cari produk" class="input pl-11">
+                <input type="search" name="cari" placeholder="Cari rasa" aria-label="Cari produk" class="input pl-11">
             </form>
             @foreach ($menu as $item)
                 <a wire:navigate href="{{ route($item['route']) }}"

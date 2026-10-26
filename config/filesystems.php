@@ -30,7 +30,7 @@ return [
 
     'disks' => [
 
-        // Gambar barang, disajikan langsung dari public/build/images
+        // Foto produk (images/produk), disajikan langsung dari public/build
         'public_uploads' => [
             'driver' => 'local',
             'root' => public_path('build'),

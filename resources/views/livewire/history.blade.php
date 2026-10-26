@@ -19,9 +19,8 @@
                 <ul class="flex flex-col gap-3 px-5 py-4">
                     @foreach ($item->pesanandetail as $pesan)
                         <li class="flex items-center gap-3">
-                            <img src="{{ url('build/images') }}/{{ $pesan->barang->gambar }}" alt=""
-                                class="size-12 rounded-xs bg-surface-muted object-cover">
-                            <span class="flex-1 text-[15px]">{{ $pesan->barang->nama_barang }}</span>
+                            <x-foto-produk :foto="$pesan->varian->produk->fotoUtama" class="size-12 rounded-xs bg-surface-muted" />
+                            <span class="flex-1 text-[15px]">{{ $pesan->varian->produk->nama }} <span class="text-ink-muted">· {{ $pesan->varian->nama }}</span></span>
                             <span class="text-sm text-ink-muted tabular-nums">× {{ $pesan->jumlah_pesanan }}</span>
                         </li>
                     @endforeach

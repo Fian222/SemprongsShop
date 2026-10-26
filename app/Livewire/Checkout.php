@@ -2,7 +2,6 @@
 
 namespace App\Livewire;
 
-use App\Models\barang;
 use App\Models\User;
 use App\Models\pesanan;
 use App\Models\pesanandetail;

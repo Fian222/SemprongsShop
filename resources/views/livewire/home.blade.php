@@ -27,19 +27,19 @@
         <div class="mb-10 flex flex-wrap items-end justify-between gap-4">
             <h2 class="text-[clamp(2rem,3.6vw,3.25rem)] leading-[1.05]">Pilihan semprong</h2>
             <p class="max-w-[40ch] leading-relaxed text-ink-muted">
-                {{ $jumlahProduk }} rasa, semuanya baru dibuat setelah kamu pesan.
-                @if ($jumlahProduk > $barangs->count())
+                {{ $jumlahProduk }} pilihan, semuanya baru dibuat setelah kamu pesan.
+                @if ($jumlahProduk > $produks->count())
                     <a wire:navigate href="{{ route('produk') }}" class="link">Lihat semua</a>
                 @endif
             </p>
         </div>
 
-        @if ($barangs->isEmpty())
+        @if ($produks->isEmpty())
             <div class="card"><x-empty icon="package">Belum ada produk. Rasa baru akan tampil di sini begitu ditambahkan.</x-empty></div>
         @else
             <div class="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 md:gap-x-6 xl:grid-cols-4">
-                @foreach ($barangs as $barang)
-                    <x-product-card :barang="$barang" :href="route('produk.detail', $barang->id)" wire:key="barang-{{ $barang->id }}" />
+                @foreach ($produks as $produk)
+                    <x-product-card :produk="$produk" wire:key="produk-{{ $produk->id }}" />
                 @endforeach
             </div>
         @endif

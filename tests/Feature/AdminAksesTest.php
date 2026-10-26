@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\admin;
 use App\Models\pesanan;
+use App\Models\Produk;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +32,9 @@ class AdminAksesTest extends TestCase
 
     public function test_tamu_tidak_bisa_membuka_halaman_admin()
     {
-        foreach (['dashboard', 'pesananmasuk', 'produkadmin', 'riwayatpesanan', 'produkdetail1', 'tambahbarang'] as $halaman) {
+        $produk = Produk::factory()->create();
+
+        foreach (['dashboard', 'pesananmasuk', 'riwayatpesanan', 'kategori', 'produk', 'produk/baru', "produk/{$produk->id}/ubah"] as $halaman) {
             $this->get('/admin/'.$halaman)->assertRedirect(url('admin/login'));
         }
     }
@@ -73,6 +76,18 @@ class AdminAksesTest extends TestCase
         $this->kirimAksi($snapshot, 'konfirmasi', [$pesanan->id])->assertOk();
 
         $this->assertSame('2', (string) $pesanan->fresh()->status);
+    }
+
+    public function test_aksi_varian_di_halaman_produk_ditolak_setelah_logout()
+    {
+        $produk = Produk::factory()->create();
+
+        $this->actingAs($this->admin, 'adminMiddle');
+        $snapshot = $this->ambilSnapshot(route('admin.produk.ubah', $produk), 'admin.varian-produk');
+
+        Auth::guard('adminMiddle')->logout();
+
+        $this->kirimAksi($snapshot, 'batal', [])->assertUnauthorized();
     }
 
     protected function buatPesananMasuk(): pesanan
