@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Pengiriman\BarangKiriman;
 use App\Pengiriman\BiteshipShippingProvider;
 use App\Pengiriman\OngkirGagal;
+use App\Pengiriman\PelacakanGagal;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -117,6 +118,64 @@ class BiteshipShippingProviderTest extends TestCase
         } finally {
             Http::assertNothingSent();
         }
+    }
+
+    public function test_melacak_paket_dari_kurir_dan_resi()
+    {
+        Http::fake(['api.biteship.com/v1/trackings/*' => Http::response([
+            'success' => true,
+            'messsage' => 'Successfully get tracking info',
+            'object' => 'tracking',
+            'id' => '6051861741a37414e6637fab',
+            'waybill_id' => 'JNE0012345678',
+            'courier' => ['company' => 'jne', 'driver_name' => null, 'driver_phone' => null],
+            'origin' => ['contact_name' => null, 'address' => null],
+            'destination' => ['contact_name' => null, 'address' => null],
+            'history' => [
+                ['note' => 'SHIPMENT RECEIVED BY JNE COUNTER OFFICER AT [BANDUNG]', 'updated_at' => '2026-10-26T09:00:00+07:00', 'status' => 'picked'],
+                ['note' => 'WITH DELIVERY COURIER [JAKARTA SELATAN]', 'updated_at' => '2026-10-27T08:15:00+07:00', 'status' => 'dropping_off'],
+                ['note' => 'DELIVERED TO [BUDI | 27-10-2026 13:40 | JAKARTA]', 'updated_at' => '2026-10-27T13:40:00+07:00', 'status' => 'delivered'],
+            ],
+            'link' => '-',
+            'order_id' => null,
+            'status' => 'delivered',
+        ])]);
+
+        $pelacakan = $this->provider()->lacak('jne', 'JNE0012345678');
+
+        $this->assertTrue($pelacakan->sampai);
+        $this->assertSame('Paket diterima', $pelacakan->status);
+        // terbaru di atas
+        $this->assertSame('DELIVERED TO [BUDI | 27-10-2026 13:40 | JAKARTA]', $pelacakan->riwayat[0]->keterangan);
+        $this->assertSame('2026-10-27 13:40', $pelacakan->riwayat[0]->waktu->timezone('Asia/Jakarta')->format('Y-m-d H:i'));
+        $this->assertCount(3, $pelacakan->riwayat);
+        Http::assertSent(fn (Request $request) => $request->method() === 'GET'
+            && $request->url() === 'https://api.biteship.com/v1/trackings/JNE0012345678/couriers/jne'
+            && $request->header('authorization') === ['biteship_test.KUNCIUJI']);
+    }
+
+    public function test_paket_yang_masih_di_jalan_belum_sampai()
+    {
+        Http::fake(['api.biteship.com/*' => Http::response([
+            'success' => true,
+            'history' => [['note' => 'Paket dijemput kurir', 'updated_at' => '2026-10-26T09:00:00+07:00', 'status' => 'picked']],
+            'status' => 'dropping_off',
+        ])]);
+
+        $pelacakan = $this->provider()->lacak('sicepat', '0040012345');
+
+        $this->assertFalse($pelacakan->sampai);
+        $this->assertSame('Paket sedang diantar', $pelacakan->status);
+    }
+
+    public function test_resi_yang_belum_dikenal_kurir_menjadi_pelacakan_gagal()
+    {
+        Http::fake(['api.biteship.com/*' => Http::response(['success' => false, 'error' => 'Waybill not found', 'code' => 40003002], 400)]);
+
+        $this->expectException(PelacakanGagal::class);
+        $this->expectExceptionMessage('Riwayat pelacakan belum bisa dimuat.');
+
+        $this->provider()->lacak('jne', 'SALAH');
     }
 
     public function test_respons_yang_tidak_lengkap_menjadi_ongkir_gagal()

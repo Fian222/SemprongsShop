@@ -136,7 +136,7 @@ class TokoTest extends TestCase
         $this->get('/pesanan')->assertOk()->assertSee('Dibayar')->assertSee('Rp 46.500'); // 30.000 + SiCepat 16.500
 
         $this->actingAs($this->admin, 'adminMiddle');
-        $this->get('/admin/pesananmasuk')->assertOk()->assertSee('SMP-20261022-0001')->assertSee('Toples kecil');
+        $this->get('/admin/pesanan?status=dibayar')->assertOk()->assertSee('SMP-20261022-0001')->assertSee('Toples kecil');
         $this->get('/admin/dashboard')->assertOk()->assertSee('Pesanan dibayar, perlu disiapkan');
     }
 
@@ -147,8 +147,7 @@ class TokoTest extends TestCase
         $this->actingAs($this->admin, 'adminMiddle');
 
         $this->get('/admin/dashboard')->assertOk()->assertSee('Selamat Datang, Admin');
-        $this->get('/admin/pesananmasuk')->assertOk();
-        $this->get('/admin/riwayatpesanan')->assertOk();
+        $this->get('/admin/pesanan')->assertOk();
         $this->get('/admin/kategori')->assertOk();
         $this->get('/admin/produk')->assertOk()->assertSee('Semprong Coklat');
         $this->get(route('admin.produk.ubah', $varian->produk))->assertOk()->assertSee('Toples kecil');

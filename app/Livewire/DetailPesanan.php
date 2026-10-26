@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\MemuatPelacakan;
 use App\Models\Pesanan;
 use App\Pembayaran\PaymentGateway;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,8 @@ use Throwable;
 
 class DetailPesanan extends Component
 {
+    use MemuatPelacakan;
+
     public Pesanan $pesanan;
 
     // transaksi yang langsung dibuka begitu halaman tampil (datang dari checkout dengan ?bayar=1)

@@ -15,8 +15,7 @@
 @php
     $menu = [
         ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'layout-dashboard'],
-        ['label' => 'Pesanan masuk', 'route' => 'admin.pesanan', 'icon' => 'inbox'],
-        ['label' => 'Riwayat pesanan', 'route' => 'admin.riwayat', 'icon' => 'history'],
+        ['label' => 'Pesanan', 'route' => 'admin.pesanan', 'icon' => 'inbox', 'aktif' => ['admin.pesanan', 'admin.pesanan.*']],
         ['label' => 'Produk', 'route' => 'admin.produk', 'icon' => 'package', 'aktif' => ['admin.produk', 'admin.produk.*']],
         ['label' => 'Kategori', 'route' => 'admin.kategori', 'icon' => 'tag'],
     ];

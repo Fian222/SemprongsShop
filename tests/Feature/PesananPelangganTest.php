@@ -142,4 +142,102 @@ class PesananPelangganTest extends TestCase
 
         app(PaymentGateway::class);
     }
+
+    protected function kirimPesanan(string $resi): Pesanan
+    {
+        $pesanan = $this->buatPesanan();
+        $pesanan->ubahStatus(StatusPesanan::Dibayar);
+        $pesanan->ubahStatus(StatusPesanan::Diproses);
+        $pesanan->kirim($resi);
+
+        return $pesanan->fresh();
+    }
+
+    public function test_pelanggan_melihat_resi_dan_riwayat_pelacakan()
+    {
+        $pesanan = $this->kirimPesanan('JNE0012345678');
+        $this->actingAs($this->user);
+
+        $this->get(route('pesanan.detail', $pesanan))->assertOk()
+            ->assertSee('JNE0012345678')
+            ->assertSee('Lacak paket');
+
+        Livewire::test(DetailPesanan::class, ['pesanan' => $pesanan])
+            ->call('muatPelacakan')
+            ->assertSee('Paket dalam perjalanan')
+            ->assertSeeInOrder(['Paket dalam perjalanan ke kota tujuan', 'Paket diterima di gudang JNE Bandung']);
+
+        $this->assertSame('Paket dalam perjalanan', $pesanan->pengiriman->fresh()->status_lacak);
+        $this->assertSame(StatusPesanan::Dikirim, $pesanan->fresh()->status);
+    }
+
+    public function test_paket_yang_dilacak_sudah_diterima_membuat_pesanan_selesai()
+    {
+        $pesanan = $this->kirimPesanan('SAMPAI001');
+        $this->actingAs($this->user);
+
+        Livewire::test(DetailPesanan::class, ['pesanan' => $pesanan])
+            ->call('muatPelacakan')
+            ->assertSee('Paket diterima')
+            ->assertSee('Selesai');
+
+        $pesanan->refresh();
+        $this->assertSame(StatusPesanan::Selesai, $pesanan->status);
+        $this->assertNotNull($pesanan->selesai_at);
+        $this->assertNotNull($pesanan->pengiriman->diterima_at);
+
+        // pelacakan berikutnya tidak mencoba menyelesaikan pesanan dua kali
+        Livewire::test(DetailPesanan::class, ['pesanan' => $pesanan])->call('muatPelacakan')->assertHasNoErrors();
+    }
+
+    public function test_pelacakan_yang_gagal_dimuat_tetap_menampilkan_resi()
+    {
+        $pesanan = $this->kirimPesanan('GAGAL001');
+        $this->actingAs($this->user);
+
+        Livewire::test(DetailPesanan::class, ['pesanan' => $pesanan])
+            ->call('muatPelacakan')
+            ->assertSee('GAGAL001')
+            ->assertSee('Riwayat pelacakan belum bisa dimuat.');
+
+        $this->assertSame(StatusPesanan::Dikirim, $pesanan->fresh()->status);
+    }
+
+    public function test_pesanan_yang_belum_dikirim_tidak_dilacak()
+    {
+        $pesanan = $this->buatPesanan();
+        $this->actingAs($this->user);
+
+        Livewire::test(DetailPesanan::class, ['pesanan' => $pesanan])
+            ->assertDontSee('Lacak paket')
+            ->call('muatPelacakan')
+            ->assertSet('pelacakan', null);
+    }
+
+    public function test_penjadwal_melacak_paket_dan_menyelesaikan_yang_sudah_diterima()
+    {
+        $this->varian->update(['stok' => 10]);
+        $sampai = $this->kirimPesanan('SAMPAI002');
+        $diJalan = $this->kirimPesanan('JNE0099887766');
+        $gagal = $this->kirimPesanan('GAGAL002');
+
+        $this->artisan('pengiriman:lacak')->assertSuccessful();
+
+        $this->assertSame(StatusPesanan::Selesai, $sampai->fresh()->status);
+        $this->assertSame(StatusPesanan::Dikirim, $diJalan->fresh()->status);
+        $this->assertSame(StatusPesanan::Dikirim, $gagal->fresh()->status);
+    }
+
+    public function test_pelacakan_dibatasi_supaya_kurir_tidak_dipanggil_terus_menerus()
+    {
+        $pesanan = $this->kirimPesanan('GAGAL003');
+        $this->actingAs($this->user);
+        $halaman = Livewire::test(DetailPesanan::class, ['pesanan' => $pesanan]);
+
+        foreach (range(1, 10) as $_) {
+            $halaman->call('muatPelacakan')->assertSee('Riwayat pelacakan belum bisa dimuat.');
+        }
+
+        $halaman->call('muatPelacakan')->assertSee('Terlalu sering memuat pelacakan.');
+    }
 }

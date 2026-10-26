@@ -46,4 +46,25 @@ class SimulasiShippingProvider implements ShippingProvider
 
         return array_map(fn (array $l) => new Tarif($l[0], $l[1], $l[2], $l[3], $l[4] + $l[5] * $kg, $l[6], $berat), self::LAYANAN);
     }
+
+    // resi berawalan SAMPAI sudah diterima, berawalan GAGAL belum dikenal kurir, selain itu masih di jalan
+    public function lacak(string $kurir, string $resi): Pelacakan
+    {
+        if (str_starts_with($resi, 'GAGAL')) {
+            throw PelacakanGagal::provider("Resi simulasi {$resi} tidak dikenal.");
+        }
+
+        $riwayat = [
+            new KejadianLacak(now()->toImmutable()->subDay(), 'Paket diterima di gudang '.strtoupper($kurir).' Bandung'),
+            new KejadianLacak(now()->toImmutable()->subHours(6), 'Paket dalam perjalanan ke kota tujuan'),
+        ];
+
+        if (! str_starts_with($resi, 'SAMPAI')) {
+            return new Pelacakan('Paket dalam perjalanan', false, array_reverse($riwayat));
+        }
+
+        $riwayat[] = new KejadianLacak(now()->toImmutable()->subHour(), 'Paket diterima oleh yang bersangkutan');
+
+        return new Pelacakan('Paket diterima', true, array_reverse($riwayat));
+    }
 }

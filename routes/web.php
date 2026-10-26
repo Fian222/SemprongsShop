@@ -3,21 +3,35 @@
 use App\Http\Controllers\AdminLoginController;
 use App\Http\Controllers\NotifikasiPembayaranController;
 use App\Http\Controllers\SimulasiPembayaranController;
+use App\Livewire\Admin\DaftarPesanan as AdminDaftarPesanan;
+use App\Livewire\Admin\DaftarProduk;
+use App\Livewire\Admin\DetailPesanan as AdminDetailPesanan;
+use App\Livewire\Admin\FormProduk;
+use App\Livewire\Admin\KelolaKategori;
+use App\Livewire\BukuAlamat;
+use App\Livewire\Checkout;
+use App\Livewire\DaftarPesanan;
+use App\Livewire\Dashboard;
+use App\Livewire\DetailPesanan;
+use App\Livewire\Home;
+use App\Livewire\Katalog;
+use App\Livewire\KeranjangBelanja;
+use App\Livewire\ProdukDetail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
 
-Route::get('/', \App\Livewire\Home::class)->name('home');
-Route::get('/produk', \App\Livewire\Katalog::class)->name('produk');
-Route::get('/produk/{slug}', \App\Livewire\ProdukDetail::class)->name('produk.detail');
-Route::get('/tas-belanja', \App\Livewire\KeranjangBelanja::class)->name('keranjang');
-Route::get('/checkout', \App\Livewire\Checkout::class)->name('checkout');
+Route::get('/', Home::class)->name('home');
+Route::get('/produk', Katalog::class)->name('produk');
+Route::get('/produk/{slug}', ProdukDetail::class)->name('produk.detail');
+Route::get('/tas-belanja', KeranjangBelanja::class)->name('keranjang');
+Route::get('/checkout', Checkout::class)->name('checkout');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/pesanan', \App\Livewire\DaftarPesanan::class)->name('pesanan.index');
-    Route::get('/pesanan/{pesanan}', \App\Livewire\DetailPesanan::class)->name('pesanan.detail');
-    Route::get('/akun/alamat', \App\Livewire\BukuAlamat::class)->name('alamat');
+    Route::get('/pesanan', DaftarPesanan::class)->name('pesanan.index');
+    Route::get('/pesanan/{pesanan}', DetailPesanan::class)->name('pesanan.detail');
+    Route::get('/akun/alamat', BukuAlamat::class)->name('alamat');
 
     // jendela pembayaran PEMBAYARAN_DRIVER=simulasi, pengganti Snap saat pengembangan
     Route::get('/pembayaran/simulasi/{pesanan}', [SimulasiPembayaranController::class, 'tampil'])->name('pembayaran.simulasi');
@@ -33,12 +47,12 @@ Route::prefix('admin')->group(function () {
     Route::post('/login', [AdminLoginController::class, 'login'])->name('admin.login');
     Route::get('/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
     Route::middleware('adminMiddle')->group(function () {
-        Route::get('/dashboard', \App\Livewire\Dashboard::class)->name('admin.dashboard');
-        Route::get('/pesananmasuk', \App\Livewire\Pesananmasuk::class)->name('admin.pesanan');
-        Route::get('/riwayatpesanan', \App\Livewire\Riwayatpesanan::class)->name('admin.riwayat');
-        Route::get('/kategori', \App\Livewire\Admin\KelolaKategori::class)->name('admin.kategori');
-        Route::get('/produk', \App\Livewire\Admin\DaftarProduk::class)->name('admin.produk');
-        Route::get('/produk/baru', \App\Livewire\Admin\FormProduk::class)->name('admin.produk.baru');
-        Route::get('/produk/{produk}/ubah', \App\Livewire\Admin\FormProduk::class)->name('admin.produk.ubah');
+        Route::get('/dashboard', Dashboard::class)->name('admin.dashboard');
+        Route::get('/pesanan', AdminDaftarPesanan::class)->name('admin.pesanan');
+        Route::get('/pesanan/{pesanan}', AdminDetailPesanan::class)->name('admin.pesanan.detail');
+        Route::get('/kategori', KelolaKategori::class)->name('admin.kategori');
+        Route::get('/produk', DaftarProduk::class)->name('admin.produk');
+        Route::get('/produk/baru', FormProduk::class)->name('admin.produk.baru');
+        Route::get('/produk/{produk}/ubah', FormProduk::class)->name('admin.produk.ubah');
     });
 });

@@ -34,7 +34,7 @@ class AdminAksesTest extends TestCase
     {
         $produk = Produk::factory()->create();
 
-        foreach (['dashboard', 'pesananmasuk', 'riwayatpesanan', 'kategori', 'produk', 'produk/baru', "produk/{$produk->id}/ubah"] as $halaman) {
+        foreach (['dashboard', 'pesanan', 'pesanan/SMP-20261026-0001', 'kategori', 'produk', 'produk/baru', "produk/{$produk->id}/ubah"] as $halaman) {
             $this->get('/admin/'.$halaman)->assertRedirect(url('admin/login'));
         }
     }

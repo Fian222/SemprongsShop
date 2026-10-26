@@ -121,5 +121,13 @@ Biaya kirim untuk layanan kurir yang dipilih, dihitung provider dari area asal t
 _Avoid_: Ongkos kirim (boleh di teks panjang), biaya pengiriman, shipping
 
 **Pengiriman**:
-Kurir, layanan, ongkir, estimasi, dan berat yang dipilih untuk satu Pesanan.
+Kurir, layanan, ongkir, estimasi, dan berat yang dipilih untuk satu Pesanan, lalu Resi dan Pelacakan terakhirnya sesudah paket dikirim.
 _Avoid_: Ekspedisi, shipment
+
+**Resi**:
+Nomor kiriman dari Kurir untuk satu paket. Admin menginput Resi saat menandai Pesanan Dikirim; Pesanan tidak bisa Dikirim tanpa Resi.
+_Avoid_: AWB, waybill, nomor tracking
+
+**Pelacakan**:
+Posisi terakhir paket dan riwayat perjalanannya menurut Kurir, dibaca dari Resi. Paket yang menurut Pelacakan sudah diterima membuat Pesanan Dikirim menjadi Selesai.
+_Avoid_: Tracking, status kirim

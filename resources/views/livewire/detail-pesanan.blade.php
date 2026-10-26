@@ -25,74 +25,31 @@
                 </section>
             @endif
 
-            <section class="card" aria-labelledby="judul-barang">
-                <h2 id="judul-barang" class="border-b border-line px-6 py-5 text-xl">Isi pesanan</h2>
-                <ul class="divide-y divide-line">
-                    @foreach ($pesanan->items as $item)
-                        <li wire:key="item-{{ $item->id }}" class="flex items-center gap-4 px-6 py-4">
-                            @if ($item->fotoUrl())
-                                <img src="{{ $item->fotoUrl() }}" alt="" class="size-14 shrink-0 rounded-xs bg-surface-muted object-cover">
-                            @else
-                                <x-foto-produk :foto="null" class="size-14 shrink-0 rounded-xs" />
-                            @endif
-                            <div class="min-w-0 flex-1 text-[15px]">
-                                <p class="truncate font-medium">{{ $item->nama_produk }}</p>
-                                <p class="text-sm text-ink-muted tabular-nums">{{ $item->nama_varian }} · {{ $item->jumlah }} × @rupiah($item->harga)</p>
-                            </div>
-                            <p class="price whitespace-nowrap">@rupiah($item->jumlahHarga())</p>
-                        </li>
-                    @endforeach
-                </ul>
-            </section>
+            @if ($pesanan->pengiriman?->resi)
+                <x-pelacakan :pengiriman="$pesanan->pengiriman" :pelacakan="$pelacakan" :gagal="$pelacakanGagal" />
+            @endif
+
+            <x-isi-pesanan :pesanan="$pesanan" />
 
             <section class="card p-6" aria-labelledby="judul-kirim">
                 <h2 id="judul-kirim" class="flex items-center gap-2 text-xl"><x-icon name="map-pin" class="size-5 text-brand" /> Dikirim ke</h2>
-                <div class="mt-3 text-[15px]">
-                    <p class="font-medium">{{ $pesanan->alamat['penerima'] }} <span class="font-normal text-ink-muted">· {{ $pesanan->alamat['label'] }}</span></p>
-                    <p class="text-ink-muted">{{ $pesanan->alamat['no_hp'] }}</p>
-                    <p class="text-ink-muted">{{ $pesanan->alamat['alamat'] }}, {{ $pesanan->alamat['kode_pos'] }}</p>
-                    @if ($pesanan->alamat['area_nama'] ?? null)
-                        <p class="text-ink-muted">{{ $pesanan->alamat['area_nama'] }}</p>
-                    @endif
-                </div>
+                <x-alamat-pesanan :pesanan="$pesanan" class="mt-3" />
                 @if ($pesanan->pengiriman)
-                    <p class="mt-4 flex flex-wrap items-center gap-x-2 border-t border-line pt-4 text-[15px]">
-                        <x-icon name="package" class="size-5 text-brand" />
-                        <span class="font-medium">{{ $pesanan->pengiriman->label() }}</span>
-                        <span class="text-ink-muted">· estimasi {{ $pesanan->pengiriman->estimasi }} · {{ number_format($pesanan->pengiriman->berat / 1000, 1, ',', '.') }} kg</span>
-                    </p>
+                    <x-kurir-pesanan :pengiriman="$pesanan->pengiriman" class="mt-4 border-t border-line pt-4" />
                 @endif
             </section>
         </div>
 
         <aside class="panel p-6 lg:sticky lg:top-36">
             <h2 class="text-lg">Rincian harga</h2>
-            <dl class="mt-4 flex flex-col gap-2 text-[15px]">
-                <div class="flex justify-between">
-                    <dt class="text-ink-muted">Subtotal</dt>
-                    <dd class="tabular-nums">@rupiah($pesanan->subtotal)</dd>
-                </div>
-                <div class="flex justify-between">
-                    <dt class="text-ink-muted">Ongkir{{ $pesanan->pengiriman ? ' '.$pesanan->pengiriman->nama_kurir : '' }}</dt>
-                    <dd class="tabular-nums">@rupiah($pesanan->ongkir)</dd>
-                </div>
-                @if ($pesanan->diskon)
-                    <div class="flex justify-between">
-                        <dt class="text-ink-muted">Diskon</dt>
-                        <dd class="tabular-nums text-ok">−@rupiah($pesanan->diskon)</dd>
-                    </div>
-                @endif
-                <div class="mt-2 flex items-baseline justify-between border-t border-line pt-3">
-                    <dt class="font-medium">Total</dt>
-                    <dd class="price text-[28px] leading-none">@rupiah($pesanan->total)</dd>
-                </div>
+            <x-rincian-harga :pesanan="$pesanan" class="mt-4">
                 @if ($pesanan->dibayar_at)
                     <div class="mt-3 flex justify-between border-t border-line pt-3 text-sm">
                         <dt class="text-ink-muted">Dibayar</dt>
                         <dd>@tanggal($pesanan->dibayar_at){{ $pesanan->pembayaran?->metode ? ' · '.str($pesanan->pembayaran->metode)->replace('_', ' ')->title() : '' }}</dd>
                     </div>
                 @endif
-            </dl>
+            </x-rincian-harga>
         </aside>
     </div>
 </div>

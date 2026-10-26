@@ -36,7 +36,8 @@ return [
 
         'array' => [
             'driver' => 'array',
-            'serialize' => false,
+            // test memakai store ini; serialisasi menyamakannya dengan store file/database di production
+            'serialize' => true,
         ],
 
         'database' => [

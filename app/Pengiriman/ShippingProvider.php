@@ -26,4 +26,11 @@ interface ShippingProvider
      * @throws OngkirGagal
      */
     public function tarif(string $areaTujuan, array $barang): array;
+
+    /**
+     * Riwayat perjalanan paket dari kode kurir (mis. "jne") dan nomor resinya.
+     *
+     * @throws PelacakanGagal
+     */
+    public function lacak(string $kurir, string $resi): Pelacakan;
 }

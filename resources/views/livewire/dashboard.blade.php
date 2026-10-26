@@ -2,7 +2,7 @@
     <x-admin-heading title="Selamat Datang, Admin" subtitle="Ringkasan toko hari ini." />
 
     <div class="mt-8 grid gap-4 sm:grid-cols-2">
-        <a wire:navigate href="{{ route('admin.pesanan') }}" class="card group flex items-center gap-4 p-6 transition-colors hover:border-line-strong">
+        <a wire:navigate href="{{ route('admin.pesanan', ['status' => 'dibayar']) }}" class="card group flex items-center gap-4 p-6 transition-colors hover:border-line-strong">
             <span class="grid size-12 place-items-center rounded-xs bg-brand-soft text-brand">
                 <x-icon name="clipboard-list" class="size-6" />
             </span>

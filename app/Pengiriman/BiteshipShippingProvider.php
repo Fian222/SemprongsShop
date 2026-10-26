@@ -2,6 +2,7 @@
 
 namespace App\Pengiriman;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
@@ -10,6 +11,24 @@ use Illuminate\Support\Facades\Http;
 // Adapter Biteship: https://biteship.com/id/docs/api
 class BiteshipShippingProvider implements ShippingProvider
 {
+    // status pelacakan Biteship: https://biteship.com/id/docs/api/trackings/overview
+    private const STATUS_LACAK = [
+        'confirmed' => 'Menunggu dijemput kurir',
+        'scheduled' => 'Menunggu dijemput kurir',
+        'allocated' => 'Menunggu dijemput kurir',
+        'picking_up' => 'Kurir menuju lokasi penjemputan',
+        'picked' => 'Paket sudah dijemput kurir',
+        'dropping_off' => 'Paket sedang diantar',
+        'on_hold' => 'Paket tertahan di kurir',
+        'delivered' => 'Paket diterima',
+        'return_in_transit' => 'Paket dalam perjalanan kembali',
+        'returned' => 'Paket dikembalikan ke toko',
+        'rejected' => 'Paket ditolak penerima',
+        'cancelled' => 'Pengiriman dibatalkan kurir',
+        'courier_not_found' => 'Kurir belum ditemukan',
+        'disposed' => 'Paket dimusnahkan kurir',
+    ];
+
     public function __construct(private string $apiKey, private string $areaAsal, private string $kurir) {}
 
     public function cariArea(string $teks): array
@@ -59,10 +78,29 @@ class BiteshipShippingProvider implements ShippingProvider
             ->all());
     }
 
-    private function kirim(callable $permintaan): Response
+    public function lacak(string $kurir, string $resi): Pelacakan
+    {
+        $respons = $this->kirim(fn (PendingRequest $http) => $http->get('/v1/trackings/'.rawurlencode($resi).'/couriers/'.rawurlencode($kurir)),
+            PelacakanGagal::class);
+
+        return $this->baca(fn () => new Pelacakan(
+            status: self::STATUS_LACAK[$respons->json('status')] ?? 'Dalam pengiriman',
+            sampai: $respons->json('status') === 'delivered',
+            riwayat: collect($respons->json('history', []))
+                ->map(fn (array $k) => new KejadianLacak(CarbonImmutable::parse($k['updated_at']), $k['note']))
+                ->sortByDesc(fn (KejadianLacak $k) => $k->waktu->getTimestamp())
+                ->values()
+                ->all(),
+        ), PelacakanGagal::class);
+    }
+
+    /**
+     * @param  class-string<OngkirGagal|PelacakanGagal>  $gagal
+     */
+    private function kirim(callable $permintaan, string $gagal = OngkirGagal::class): Response
     {
         if ($this->apiKey === '') {
-            throw OngkirGagal::provider('BITESHIP_API_KEY belum diisi.');
+            throw $gagal::provider('BITESHIP_API_KEY belum diisi.');
         }
 
         try {
@@ -72,23 +110,27 @@ class BiteshipShippingProvider implements ShippingProvider
                 ->asJson()
                 ->timeout(10));
         } catch (ConnectionException $e) {
-            throw OngkirGagal::provider($e->getMessage());
+            throw $gagal::provider($e->getMessage());
         }
 
         if ($respons->failed() || $respons->json('success') !== true) {
-            throw OngkirGagal::provider($respons->body());
+            throw $gagal::provider($respons->body());
         }
 
         return $respons;
     }
 
-    // respons yang bentuknya tidak dikenal (kolom hilang, tipe lain) diperlakukan seperti gangguan provider
-    private function baca(callable $baca): array
+    /**
+     * Respons yang bentuknya tidak dikenal (kolom hilang, tipe lain) diperlakukan seperti gangguan provider.
+     *
+     * @param  class-string<OngkirGagal|PelacakanGagal>  $gagal
+     */
+    private function baca(callable $baca, string $gagal = OngkirGagal::class): mixed
     {
         try {
             return $baca();
         } catch (\Throwable $e) {
-            throw OngkirGagal::provider('Respons Biteship tidak dikenal: '.$e->getMessage());
+            throw $gagal::provider('Respons Biteship tidak dikenal: '.$e->getMessage());
         }
     }
 

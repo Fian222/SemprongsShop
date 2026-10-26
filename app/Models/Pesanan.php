@@ -7,6 +7,9 @@ use App\Enums\StatusPesanan;
 use App\Exceptions\KeranjangDitolak;
 use App\Exceptions\TransisiTidakSah;
 use App\Pembayaran\PaymentGateway;
+use App\Pengiriman\Pelacakan;
+use App\Pengiriman\PelacakanGagal;
+use App\Pengiriman\ShippingProvider;
 use App\Pengiriman\Tarif;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -155,6 +159,10 @@ class Pesanan extends Model
                 throw new TransisiTidakSah($this->status, $tujuan);
             }
 
+            if ($tujuan === StatusPesanan::Dikirim && blank($this->pengiriman()->value('resi'))) {
+                throw new TransisiTidakSah($this->status, $tujuan, 'Pesanan baru bisa dikirim dengan nomor resi.');
+            }
+
             if ($tujuan->mengembalikanStok()) {
                 foreach ($this->items()->whereNotNull('varian_id')->get() as $item) {
                     Varian::whereKey($item->varian_id)->increment('stok', $item->jumlah);
@@ -165,6 +173,50 @@ class Pesanan extends Model
             $this->{$tujuan->kolomWaktu()} = now();
             $this->save();
         });
+    }
+
+    /**
+     * Menandai pesanan Dikirim dengan nomor resi dari kurir. Resi ikut batal tersimpan bila transisinya ditolak.
+     *
+     * @throws TransisiTidakSah
+     */
+    public function kirim(string $resi): void
+    {
+        DB::transaction(function () use ($resi) {
+            // pesanan tanpa Pengiriman tetap ditolak ubahStatus karena tidak punya resi
+            $this->pengiriman?->update(['resi' => $resi]);
+            $this->ubahStatus(StatusPesanan::Dikirim);
+        });
+    }
+
+    /**
+     * Riwayat perjalanan paket dari kurir, atau null bila belum ada resi. Status lacak terakhir disimpan di Pengiriman,
+     * dan paket yang sudah diterima membuat pesanan Dikirim menjadi Selesai.
+     *
+     * @throws PelacakanGagal
+     */
+    public function lacakPaket(ShippingProvider $provider): ?Pelacakan
+    {
+        $pengiriman = $this->pengiriman;
+        if (blank($pengiriman?->resi)) {
+            return null;
+        }
+
+        // riwayat dari kurir jarang berubah dalam hitungan menit; pelacakan yang gagal tidak disimpan
+        $pelacakan = Pelacakan::dariArray(Cache::remember("pelacakan:{$pengiriman->kurir}:{$pengiriman->resi}", now()->addMinutes(15),
+            fn () => $provider->lacak($pengiriman->kurir, $pengiriman->resi)->keArray()));
+
+        $pengiriman->catatPelacakan($pelacakan);
+
+        if ($pelacakan->sampai && $this->status === StatusPesanan::Dikirim) {
+            try {
+                $this->ubahStatus(StatusPesanan::Selesai);
+            } catch (TransisiTidakSah) {
+                // sudah diselesaikan admin atau pelacakan lain di saat yang sama
+            }
+        }
+
+        return $pelacakan;
     }
 
     /**

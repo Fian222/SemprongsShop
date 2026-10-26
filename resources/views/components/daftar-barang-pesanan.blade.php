@@ -5,7 +5,7 @@
     @foreach ($pesanan->items as $item)
         <li class="flex items-center gap-2.5">
             <span class="whitespace-nowrap">{{ $item->nama_produk }} <span class="text-ink-muted">· {{ $item->nama_varian }}</span></span>
-            <span class="text-ink-muted tabular-nums">× {{ $item->jumlah }}</span>
+            <span class="whitespace-nowrap text-ink-muted tabular-nums">× {{ $item->jumlah }}</span>
         </li>
     @endforeach
 </ul>
