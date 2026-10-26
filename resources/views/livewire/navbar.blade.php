@@ -53,11 +53,42 @@
                 </div>
             @endguest
 
-            <a wire:navigate href="{{ route('pesanann') }}" @if ($aktif('pesanann')) aria-current="page" @endif
-                aria-label="Tas belanja, {{ $jumlah_pesanan }} barang"
-                class="flex h-10 items-center gap-2 rounded-xs border border-ink px-3.5 text-sm whitespace-nowrap transition-colors hover:bg-ink hover:text-canvas">
-                <x-icon name="shopping-bag" /> Tas ({{ $jumlah_pesanan }})
-            </a>
+            {{-- ringkasan keranjang; terbuka sendiri saat varian baru masuk dari halaman produk --}}
+            <div x-data="{ ringkasan: false }" class="relative" @click.outside="ringkasan = false" @keydown.escape="ringkasan = false"
+                @keranjang-diperbarui.window="if ($event.detail.buka) ringkasan = true">
+                <button type="button" @click="ringkasan = !ringkasan" :aria-expanded="ringkasan" aria-controls="ringkasan-keranjang"
+                    aria-label="Tas belanja, {{ $jumlahBarang }} barang"
+                    @class(['flex h-10 items-center gap-2 rounded-xs border border-ink px-3.5 text-sm whitespace-nowrap transition-colors hover:bg-ink hover:text-canvas',
+                        'bg-ink text-canvas' => $aktif('keranjang')])>
+                    <x-icon name="shopping-bag" /> Tas ({{ $jumlahBarang }})
+                </button>
+                <div id="ringkasan-keranjang" x-cloak x-show="ringkasan" x-transition.origin.top.right
+                    class="card absolute right-0 z-50 mt-2 w-88 shadow-lg shadow-ink/10 max-sm:fixed max-sm:inset-x-4 max-sm:top-21 max-sm:mt-0 max-sm:w-auto">
+                    @if ($jumlahBarang)
+                        <ul class="max-h-80 divide-y divide-line overflow-y-auto">
+                            @foreach ($keranjang->items as $item)
+                                <li wire:key="mini-{{ $item->id }}" class="flex items-center gap-3 px-4 py-3">
+                                    <x-foto-produk :foto="$item->varian->produk->fotoUtama" class="size-12 shrink-0 rounded-xs bg-surface-muted" />
+                                    <div class="min-w-0 flex-1 text-sm">
+                                        <p class="truncate font-medium">{{ $item->varian->produk->nama }}</p>
+                                        <p class="text-ink-muted tabular-nums">{{ $item->varian->nama }} · {{ $item->jumlah }} ×</p>
+                                    </div>
+                                    <p class="price text-sm">@rupiah($item->jumlahHarga())</p>
+                                </li>
+                            @endforeach
+                        </ul>
+                        <div class="border-t border-line p-4">
+                            <p class="flex items-baseline justify-between">
+                                <span class="text-sm text-ink-muted">Subtotal</span>
+                                <span class="price text-lg">@rupiah($keranjang->subtotal())</span>
+                            </p>
+                            <a wire:navigate href="{{ route('keranjang') }}" class="btn btn-primary mt-3 w-full">Lihat tas belanja</a>
+                        </div>
+                    @else
+                        <p class="px-4 py-6 text-center text-sm text-ink-muted">Tas belanjamu masih kosong.</p>
+                    @endif
+                </div>
+            </div>
 
             <button type="button" @click="open = !open" :aria-expanded="open" aria-controls="menu-hp" aria-label="Menu"
                 class="grid size-11 place-items-center text-ink md:hidden">

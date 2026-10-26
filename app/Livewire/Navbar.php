@@ -2,51 +2,32 @@
 
 namespace App\Livewire;
 
+use App\Models\Keranjang;
+use Livewire\Attributes\On;
 use Livewire\Component;
-use App\Models\pesanan;
-use App\Models\pesanandetail;
-use Illuminate\Support\Facades\Auth;
 
 class Navbar extends Component
 {
-    public $jumlah = 0;
-
     // rute halaman saat navbar pertama dirender; request() saat re-render Livewire adalah endpoint update
     public $rute;
-    protected $listeners = [
-        'masukKeranjang' => 'updateKeranjang'
-    ];
-
-    public function updateKeranjang()
-    {
-        if (Auth::user()) {
-            $pesanan = pesanan::where('id_user', Auth::user()->id)->where('status', 0)->first();
-            if ($pesanan) {
-                $this->jumlah = pesanandetail::where('id_pesanan', $pesanan->id)->count();
-            } else {
-                $this->jumlah = 0;
-            }
-        }
-    }
 
     public function mount()
     {
         $this->rute = request()->route()?->getName();
-
-        if (Auth::user()) {
-            $pesanan = pesanan::where('id_user', Auth::user()->id)->where('status', 0)->first();
-            if ($pesanan) {
-                $this->jumlah = pesanandetail::where('id_pesanan', $pesanan->id)->count();
-            } else {
-                $this->jumlah = 0;
-            }
-        }
     }
+
+    // render ulang supaya jumlah di ikon dan ringkasan keranjang mengikuti isinya
+    #[On('keranjang-diperbarui')]
+    public function keranjangDiperbarui() {}
 
     public function render()
     {
+        $keranjang = Keranjang::milikPengunjung();
+        $keranjang?->load('items.varian.produk.fotoUtama');
+
         return view('livewire.navbar', [
-            'jumlah_pesanan' => $this->jumlah,
+            'keranjang' => $keranjang,
+            'jumlahBarang' => $keranjang?->jumlahBarang() ?? 0,
         ]);
     }
 }

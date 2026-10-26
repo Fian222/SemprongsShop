@@ -53,3 +53,25 @@ _Avoid_: Kosong, sold out
 **Stok menipis**:
 Varian yang masih tersedia tetapi stoknya di bawah 10.
 _Avoid_: Stok rendah, hampir habis
+
+## Belanja
+
+**Tamu**:
+Pengunjung yang belum masuk ke akun.
+_Avoid_: Guest, anonim
+
+**Pelanggan**:
+Pengunjung yang sudah masuk ke akunnya.
+_Avoid_: User, member
+
+**Keranjang**:
+Kumpulan Varian dan jumlahnya yang disiapkan pengunjung sebelum checkout, milik seorang Pelanggan atau milik Tamu selama sesinya. Di layar disebut "Tas belanja". Keranjang tidak memesan stok.
+_Avoid_: Troli, cart, pesanan (sebelum checkout)
+
+**Item keranjang**:
+Satu Varian beserta jumlahnya di dalam Keranjang. Jumlahnya tidak boleh melebihi stok Varian itu.
+_Avoid_: Detail pesanan, baris keranjang
+
+**Subtotal**:
+Jumlah harga × jumlah semua Item keranjang, sebelum ongkir dan diskon.
+_Avoid_: Total (total sudah termasuk ongkir dan diskon)

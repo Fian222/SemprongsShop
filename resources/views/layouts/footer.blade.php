@@ -8,7 +8,7 @@
             <h2 class="font-sans text-[15px] font-medium tracking-normal text-ink">Belanja</h2>
             <ul class="mt-3 flex flex-col gap-2">
                 <li><a wire:navigate href="{{ route('produk') }}" class="hover:text-ink">Semua semprong</a></li>
-                <li><a wire:navigate href="{{ route('pesanann') }}" class="hover:text-ink">Tas belanja</a></li>
+                <li><a wire:navigate href="{{ route('keranjang') }}" class="hover:text-ink">Tas belanja</a></li>
             </ul>
         </div>
         <div>

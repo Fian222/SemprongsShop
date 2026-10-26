@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\KeranjangDitolak;
 use Database\Factories\VarianFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -41,6 +42,28 @@ class Varian extends Model
     public function menipis(): bool
     {
         return ! $this->habis() && $this->stok < self::STOK_MENIPIS;
+    }
+
+    // varian aktif dari produk yang tampil di toko
+    public function dijual(): bool
+    {
+        return $this->aktif && Produk::tampil()->whereKey($this->produk_id)->exists();
+    }
+
+    /**
+     * Pastikan $jumlah varian ini bisa dipesan, ditambah yang sudah ada di keranjang.
+     *
+     * @throws KeranjangDitolak
+     */
+    public function pastikanBisaDipesan(int $jumlah, int $diKeranjang = 0): void
+    {
+        if (! $this->dijual()) {
+            throw KeranjangDitolak::tidakDijual($this);
+        }
+
+        if ($diKeranjang + $jumlah > $this->stok) {
+            throw KeranjangDitolak::stokKurang($this, $diKeranjang);
+        }
     }
 
     // harga coret hanya berarti kalau lebih mahal dari harga jual

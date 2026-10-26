@@ -1,12 +1,16 @@
 <div class="wrap pt-4">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <x-breadcrumb :items="['Beranda' => route('home'), 'Tas belanja' => route('pesanann'), 'Checkout' => null]" />
+        <x-breadcrumb :items="['Beranda' => route('home'), 'Tas belanja' => route('keranjang'), 'Checkout' => null]" />
         <x-langkah-pesan :aktif="2" />
     </div>
 
     <h1 class="mt-4 text-4xl md:text-5xl">Checkout</h1>
 
-    <x-flash type="danger" class="mt-6" />
+    @error('keranjang')
+        <x-alert type="danger" class="mt-6">
+            {{ $message }} <a wire:navigate href="{{ route('keranjang') }}" class="underline underline-offset-2">Ubah tas belanja</a>
+        </x-alert>
+    @enderror
 
     <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_400px] lg:items-start">
         <section class="card p-6 sm:p-8">

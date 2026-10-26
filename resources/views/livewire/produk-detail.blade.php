@@ -56,7 +56,7 @@
 
             <x-flash class="mt-6" />
 
-            <form wire:submit="masukkankeranjang" class="mt-6 border-t border-line pt-6">
+            <form wire:submit="tambahKeKeranjang" class="mt-6 border-t border-line pt-6">
                 <fieldset>
                     <legend class="label">Kemasan</legend>
                     <div class="grid gap-2 sm:grid-cols-2">
@@ -79,7 +79,7 @@
                     </div>
                 </fieldset>
 
-                <label for="jumlah_pesanan" class="label mt-5">Jumlah</label>
+                <label for="jumlah" class="label mt-5">Jumlah</label>
                 <div class="flex flex-col gap-3 sm:flex-row">
                     <div class="flex h-11 items-center rounded-xs border border-line bg-surface sm:w-36">
                         <button type="button" aria-label="Kurangi jumlah" @disabled($varian->habis())
@@ -87,9 +87,9 @@
                             class="grid h-full w-11 place-items-center rounded-l-xs text-ink-muted hover:bg-surface-muted hover:text-ink disabled:opacity-40">
                             <x-icon name="minus" />
                         </button>
-                        <input id="jumlah_pesanan" x-ref="qty" type="number" min="1" max="{{ $varian->stok }}" inputmode="numeric"
+                        <input id="jumlah" x-ref="qty" type="number" min="1" max="{{ $varian->stok }}" inputmode="numeric"
                             class="h-full w-full min-w-0 [appearance:textfield] bg-transparent text-center text-[15px] font-medium tabular-nums [&::-webkit-inner-spin-button]:appearance-none"
-                            wire:model="jumlah_pesanan" required @disabled($varian->habis())>
+                            wire:model="jumlah" required @disabled($varian->habis())>
                         <button type="button" aria-label="Tambah jumlah" @disabled($varian->habis())
                             @click="$refs.qty.stepUp(); $refs.qty.dispatchEvent(new Event('input'))"
                             class="grid h-full w-11 place-items-center rounded-r-xs text-ink-muted hover:bg-surface-muted hover:text-ink disabled:opacity-40">
@@ -102,7 +102,7 @@
                         <x-icon name="shopping-bag" /> {{ $varian->habis() ? 'Stok habis' : 'Masukkan ke tas' }}
                     </button>
                 </div>
-                @error('jumlah_pesanan')
+                @error('jumlah')
                     <p class="field-error">{{ $message }}</p>
                 @enderror
             </form>

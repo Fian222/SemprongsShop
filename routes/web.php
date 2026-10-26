@@ -9,7 +9,7 @@ Auth::routes();
 Route::get('/', \App\Livewire\Home::class)->name('home');
 Route::get('/produk', \App\Livewire\Katalog::class)->name('produk');
 Route::get('/produk/{slug}', \App\Livewire\ProdukDetail::class)->name('produk.detail');
-Route::get('/pesanann', \App\Livewire\Pesanann::class)->name('pesanann');
+Route::get('/tas-belanja', \App\Livewire\KeranjangBelanja::class)->name('keranjang');
 Route::get('/checkout', \App\Livewire\Checkout::class)->name('checkout');
 Route::get('/history', \App\Livewire\History::class)->name('history');
 
