@@ -38,6 +38,11 @@
                     <p class="font-medium">{{ $alamat->penerima }}</p>
                     <p class="text-ink-muted">{{ $alamat->no_hp }}</p>
                     <p class="mt-1 text-ink-muted">{{ $alamat->alamat }}, {{ $alamat->kode_pos }}</p>
+                    @if ($alamat->area_nama)
+                        <p class="mt-1 flex items-center gap-1.5 text-sm text-ink-muted"><x-icon name="map-pin" class="size-4" /> {{ $alamat->area_nama }}</p>
+                    @else
+                        <p class="mt-1 text-sm text-bad">Belum ada area tujuan. Ubah alamat untuk memilihnya.</p>
+                    @endif
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <button type="button" wire:click="ubah({{ $alamat->id }})" class="btn btn-secondary btn-sm">

@@ -24,11 +24,10 @@
             <p id="alamat-no-hp-petunjuk" class="hint">Dihubungi kurir saat mengantar.</p>
         @enderror
     </div>
-    <div>
-        <label for="alamat-kode-pos" class="label">Kode pos</label>
-        <input id="alamat-kode-pos" type="text" inputmode="numeric" maxlength="5" wire:model="form.kode_pos" required autocomplete="postal-code"
-            class="input @error('form.kode_pos') input-invalid @enderror">
-        @error('form.kode_pos') <p class="field-error">{{ $message }}</p> @enderror
+    <div class="sm:col-span-2">
+        <p id="label-area" class="label">Area tujuan</p>
+        <livewire:pilih-area wire:model="form.area" :key="'area-'.($form->alamat?->id ?? 'baru')" />
+        @error('form.area') <p class="field-error">{{ $message }}</p> @enderror
     </div>
     <div class="sm:col-span-2">
         <label for="alamat-lengkap" class="label">Alamat lengkap</label>

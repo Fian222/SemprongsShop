@@ -13,28 +13,26 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
+use Tests\Concerns\MembuatPesanan;
 use Tests\TestCase;
 
 // Test kontrak adapter Midtrans Snap: bentuk request dan pembacaan respons/notifikasi, tanpa jaringan
 class MidtransGatewayTest extends TestCase
 {
-    use RefreshDatabase;
+    use MembuatPesanan, RefreshDatabase;
 
     protected function buatPesanan(): Pesanan
     {
         $this->travelTo(now()->setDate(2026, 10, 26)->setTime(10, 0));
         $user = User::factory()->create(['name' => 'Budi', 'email' => 'budi@example.com']);
-        $alamat = $user->alamats()->create([
-            'label' => 'Rumah', 'penerima' => 'Budi Santoso', 'no_hp' => '081234567890',
-            'alamat' => 'Jl. Merdeka 1, Bandung', 'kode_pos' => '40111', 'utama' => true,
-        ]);
         $varian = Varian::factory()
             ->for(Produk::factory()->state(['nama' => 'Semprong Pandan']))
-            ->create(['nama' => 'Toples kecil', 'sku' => 'SMP-PDN-250', 'harga' => 45000, 'stok' => 5]);
+            ->create(['nama' => 'Toples kecil', 'sku' => 'SMP-PDN-250', 'harga' => 45000, 'stok' => 5, 'berat' => 300]);
         $keranjang = Keranjang::create(['user_id' => $user->id]);
         $keranjang->tambah($varian, 2);
 
-        return Pesanan::buatDariKeranjang($keranjang, $alamat);
+        // simulasi: JNE Reguler 10.000 + 8.000 per kg
+        return $this->pesananDari($keranjang, $this->alamatUntuk($user, ['kode_pos' => '40111']), 'jne:reg');
     }
 
     public function test_membuat_transaksi_snap_dengan_bentuk_request_midtrans()
@@ -54,8 +52,12 @@ class MidtransGatewayTest extends TestCase
             return $request->url() === 'https://app.sandbox.midtrans.com/snap/v1/transactions'
                 && $request->method() === 'POST'
                 && $request->header('Authorization')[0] === 'Basic '.base64_encode('SB-Mid-server-UJICOBA:')
-                && $body['transaction_details'] === ['order_id' => $pesanan->nomor, 'gross_amount' => 90000]
-                && $body['item_details'] === [['id' => 'SMP-PDN-250', 'price' => 45000, 'quantity' => 2, 'name' => 'Semprong Pandan Toples kecil']]
+                && $body['transaction_details'] === ['order_id' => $pesanan->nomor, 'gross_amount' => 108000]
+                // jumlah item_details harus sama dengan gross_amount, jadi ongkir ikut sebagai item
+                && $body['item_details'] === [
+                    ['id' => 'SMP-PDN-250', 'price' => 45000, 'quantity' => 2, 'name' => 'Semprong Pandan Toples kecil'],
+                    ['id' => 'ONGKIR', 'price' => 18000, 'quantity' => 1, 'name' => 'Ongkir JNE Reguler'],
+                ]
                 && $body['customer_details']['email'] === 'budi@example.com'
                 && $body['customer_details']['shipping_address']['postal_code'] === '40111'
                 && $body['expiry'] === ['start_time' => '2026-10-26 10:00:00 +0700', 'unit' => 'minute', 'duration' => 1440]

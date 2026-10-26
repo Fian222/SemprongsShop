@@ -105,3 +105,21 @@ _Avoid_: Transfer, pelunasan
 **Status pesanan**:
 Menunggu pembayaran → Dibayar → Diproses → Dikirim → Selesai. Pesanan yang belum dibayar bisa berakhir Kedaluwarsa atau Dibatalkan, dan stoknya kembali. Perubahan lain ditolak.
 _Avoid_: Lunas/belum lunas, dikonfirmasi
+
+## Pengiriman
+
+**Area tujuan**:
+Wilayah pengiriman (kecamatan, kota, provinsi, kode pos) yang dipilih dari pencarian provider ongkir dan disimpan di Alamat. Ongkir hanya bisa dihitung untuk Alamat yang punya area tujuan.
+_Avoid_: Kota tujuan, wilayah
+
+**Kurir**:
+Perusahaan pengantar paket, mis. JNE atau SiCepat. Setiap kurir punya beberapa **layanan** (mis. Reguler) dengan ongkir dan estimasi sendiri.
+_Avoid_: Ekspedisi, jasa kirim
+
+**Ongkir**:
+Biaya kirim untuk layanan kurir yang dipilih, dihitung provider dari area asal toko, area tujuan, dan berat isi Keranjang. Ongkir selalu dihitung ulang di server saat Pesanan dibuat.
+_Avoid_: Ongkos kirim (boleh di teks panjang), biaya pengiriman, shipping
+
+**Pengiriman**:
+Kurir, layanan, ongkir, estimasi, dan berat yang dipilih untuk satu Pesanan.
+_Avoid_: Ekspedisi, shipment

@@ -12,7 +12,7 @@ class Pesananmasuk extends Component
     public function render()
     {
         return view('livewire.pesananmasuk', [
-            'pesanan' => Pesanan::status(StatusPesanan::Dibayar)->with('user', 'items')->oldest('dibayar_at')->get(),
+            'pesanan' => Pesanan::status(StatusPesanan::Dibayar)->with('user', 'items', 'pengiriman')->oldest('dibayar_at')->get(),
         ])
             ->extends('layouts.adminapp')
             ->section('content');

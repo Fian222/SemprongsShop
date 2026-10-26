@@ -24,6 +24,9 @@
                         <td class="min-w-56">
                             <p class="font-medium">{{ $item->alamat['penerima'] }} · {{ $item->alamat['no_hp'] }}</p>
                             <p class="text-ink-muted">{{ $item->alamat['alamat'] }}, {{ $item->alamat['kode_pos'] }}</p>
+                            @if ($item->pengiriman)
+                                <p class="mt-1 font-medium">{{ $item->pengiriman->label() }}</p>
+                            @endif
                         </td>
                     </tr>
                 @empty

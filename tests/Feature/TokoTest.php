@@ -118,10 +118,14 @@ class TokoTest extends TestCase
         $this->get('/tas-belanja')->assertOk()->assertSee('Rp 30.000');
 
         $checkout = Livewire::test(Checkout::class)->assertSee('Alamat baru');
-        foreach (['label' => 'Rumah', 'penerima' => 'Budi', 'no_hp' => '081234567890', 'alamat_lengkap' => 'Jl. Merdeka 1', 'kode_pos' => '40111'] as $kolom => $nilai) {
+        foreach (['label' => 'Rumah', 'penerima' => 'Budi', 'no_hp' => '081234567890', 'alamat_lengkap' => 'Jl. Merdeka 1'] as $kolom => $nilai) {
             $checkout->set("form.$kolom", $nilai);
         }
-        $checkout->call('simpanAlamat')->assertHasNoErrors()->call('bayar');
+        $checkout->set('form.area', ['id' => 'SIMULASI-40115', 'nama' => 'Bandung Wetan, Bandung, Jawa Barat. 40115'])
+            ->call('simpanAlamat')->assertHasNoErrors()
+            ->assertSee('SiCepat')
+            ->set('kurir', 'sicepat:reg')
+            ->call('bayar');
 
         $pesanan = Pesanan::firstOrFail();
         $this->assertSame('SMP-20261022-0001', $pesanan->nomor);
@@ -129,7 +133,7 @@ class TokoTest extends TestCase
         Livewire::test(Navbar::class)->assertSee('Tas (0)');
 
         $this->post(route('pembayaran.simulasi', $pesanan), ['status' => 'settlement']);
-        $this->get('/pesanan')->assertOk()->assertSee('Dibayar')->assertSee('Rp 30.000');
+        $this->get('/pesanan')->assertOk()->assertSee('Dibayar')->assertSee('Rp 46.500'); // 30.000 + SiCepat 16.500
 
         $this->actingAs($this->admin, 'adminMiddle');
         $this->get('/admin/pesananmasuk')->assertOk()->assertSee('SMP-20261022-0001')->assertSee('Toples kecil');

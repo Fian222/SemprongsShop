@@ -12,6 +12,7 @@ use App\Models\Varian;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
+use Tests\Concerns\MembuatPesanan;
 use Tests\TestCase;
 
 /**
@@ -19,7 +20,7 @@ use Tests\TestCase;
  */
 class NotifikasiPembayaranTest extends TestCase
 {
-    use RefreshDatabase;
+    use MembuatPesanan, RefreshDatabase;
 
     protected const SERVER_KEY = 'SB-Mid-server-UJICOBA';
 
@@ -36,14 +37,10 @@ class NotifikasiPembayaranTest extends TestCase
     protected function buatPesanan(int $jumlah = 2): Pesanan
     {
         $user = User::factory()->create();
-        $alamat = $user->alamats()->create([
-            'label' => 'Rumah', 'penerima' => 'Budi', 'no_hp' => '081234567890',
-            'alamat' => 'Jl. Merdeka 1', 'kode_pos' => '40111', 'utama' => true,
-        ]);
         $keranjang = Keranjang::create(['user_id' => $user->id]);
         $keranjang->tambah($this->varian, $jumlah);
 
-        return Pesanan::buatDariKeranjang($keranjang, $alamat);
+        return $this->pesananDari($keranjang, $this->alamatUntuk($user));
     }
 
     // payload seperti contoh notifikasi HTTP(S) di dokumentasi Midtrans

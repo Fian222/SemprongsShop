@@ -58,7 +58,7 @@ class DetailPesanan extends Component
 
     public function render()
     {
-        $this->pesanan->loadMissing('items', 'pembayaran');
+        $this->pesanan->loadMissing('items', 'pembayaran', 'pengiriman');
 
         return view('livewire.detail-pesanan', [
             'skripJendela' => app(PaymentGateway::class)->skripJendela(),

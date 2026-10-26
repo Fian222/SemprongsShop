@@ -13,11 +13,12 @@ use App\Pembayaran\PaymentGateway;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use RuntimeException;
+use Tests\Concerns\MembuatPesanan;
 use Tests\TestCase;
 
 class PesananPelangganTest extends TestCase
 {
-    use RefreshDatabase;
+    use MembuatPesanan, RefreshDatabase;
 
     protected User $user;
 
@@ -36,14 +37,10 @@ class PesananPelangganTest extends TestCase
 
     protected function buatPesanan(): Pesanan
     {
-        $alamat = $this->user->alamats()->create([
-            'label' => 'Rumah', 'penerima' => 'Budi Santoso', 'no_hp' => '081234567890',
-            'alamat' => 'Jl. Merdeka 1', 'kode_pos' => '40111', 'utama' => true,
-        ]);
         $keranjang = Keranjang::firstOrCreate(['user_id' => $this->user->id]);
         $keranjang->tambah($this->varian, 2);
 
-        return Pesanan::buatDariKeranjang($keranjang, $alamat);
+        return $this->pesananDari($keranjang, $this->user->alamats()->first() ?? $this->alamatUntuk($this->user));
     }
 
     public function test_pelanggan_melihat_daftar_dan_detail_pesanannya()
@@ -54,7 +51,7 @@ class PesananPelangganTest extends TestCase
         $this->get('/pesanan')->assertOk()
             ->assertSee($pesanan->nomor)
             ->assertSee('Menunggu pembayaran')
-            ->assertSee('Rp 90.000');
+            ->assertSee('Rp 108.000'); // 90.000 + JNE 18.000
 
         $this->get(route('pesanan.detail', $pesanan))->assertOk()
             ->assertSee('Semprong Pandan')
@@ -119,7 +116,7 @@ class PesananPelangganTest extends TestCase
         $pesanan = $this->buatPesanan();
         $this->actingAs($this->user);
 
-        $this->get(route('pembayaran.simulasi', $pesanan))->assertOk()->assertSee('Rp 90.000');
+        $this->get(route('pembayaran.simulasi', $pesanan))->assertOk()->assertSee('Rp 108.000');
         $this->post(route('pembayaran.simulasi', $pesanan), ['status' => 'settlement'])
             ->assertRedirect(route('pesanan.detail', $pesanan));
 

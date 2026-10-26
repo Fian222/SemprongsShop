@@ -6,6 +6,9 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Pembayaran\MidtransGateway;
 use App\Pembayaran\PaymentGateway;
 use App\Pembayaran\SimulasiGateway;
+use App\Pengiriman\BiteshipShippingProvider;
+use App\Pengiriman\ShippingProvider;
+use App\Pengiriman\SimulasiShippingProvider;
 use Carbon\Carbon;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -36,6 +39,23 @@ class AppServiceProvider extends ServiceProvider
                 (string) config('pembayaran.midtrans.server_key'),
                 (string) config('pembayaran.midtrans.client_key'),
                 config('pembayaran.midtrans.produksi'),
+            );
+        });
+
+        $this->app->bind(ShippingProvider::class, function () {
+            if (config('pengiriman.driver') === 'simulasi') {
+                // tarif simulasi bukan tarif kurir sungguhan
+                if ($this->app->isProduction()) {
+                    throw new RuntimeException('PENGIRIMAN_DRIVER=simulasi tidak boleh dipakai di production.');
+                }
+
+                return new SimulasiShippingProvider;
+            }
+
+            return new BiteshipShippingProvider(
+                (string) config('pengiriman.biteship.api_key'),
+                (string) config('pengiriman.biteship.area_asal'),
+                (string) config('pengiriman.biteship.kurir'),
             );
         });
     }

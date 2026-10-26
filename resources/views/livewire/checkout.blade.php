@@ -40,6 +40,9 @@
                                         @endif
                                         <span class="mt-1 block text-ink-muted">{{ $alamat->no_hp }}</span>
                                         <span class="block text-ink-muted">{{ $alamat->alamat }}, {{ $alamat->kode_pos }}</span>
+                                        @if ($alamat->area_nama)
+                                            <span class="block text-sm text-ink-muted">{{ $alamat->area_nama }}</span>
+                                        @endif
                                     </span>
                                 </label>
                             @endforeach
@@ -64,6 +67,40 @@
                 @endif
             </section>
 
+            <section class="card p-6 sm:p-8" aria-labelledby="judul-kurir">
+                <h2 id="judul-kurir" class="text-xl">Kurir</h2>
+                @if ($pesanOngkir)
+                    <x-alert type="danger" class="mt-5">
+                        {{ $pesanOngkir }}
+                        @if ($ongkirPerluUbahAlamat)
+                            <a wire:navigate href="{{ route('alamat') }}" class="underline underline-offset-2">Buka buku alamat</a>
+                        @else
+                            <button type="button" wire:click="muatOngkir" class="underline underline-offset-2">Coba lagi</button>
+                        @endif
+                    </x-alert>
+                @elseif (empty($pilihanKurir))
+                    <p class="mt-3 text-[15px] text-ink-muted">Pilih alamat pengiriman untuk melihat pilihan kurir.</p>
+                @else
+                    <fieldset class="mt-5">
+                        <legend class="sr-only">Pilih kurir dan layanan</legend>
+                        <div class="grid gap-2 sm:grid-cols-2">
+                            @foreach ($pilihanKurir as $pilihan)
+                                <label wire:key="kurir-{{ $pilihan['kunci'] }}"
+                                    class="flex cursor-pointer items-center gap-3 rounded-xs border border-line p-4 transition-colors hover:border-ink has-checked:border-ink has-checked:bg-surface-muted has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-gold">
+                                    <input type="radio" name="kurir" value="{{ $pilihan['kunci'] }}" wire:model.live="kurir" class="size-4 accent-brand">
+                                    <span class="flex-1 text-[15px]">
+                                        <span class="block font-medium">{{ $pilihan['label'] }}</span>
+                                        <span class="text-sm text-ink-muted">Estimasi {{ $pilihan['estimasi'] }}</span>
+                                    </span>
+                                    <span class="price text-[15px] whitespace-nowrap">@rupiah($pilihan['ongkir'])</span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </fieldset>
+                @endif
+                @error('kurir') <p class="field-error" role="alert">{{ $message }}</p> @enderror
+            </section>
+
             <section class="card" aria-labelledby="judul-barang">
                 <h2 id="judul-barang" class="border-b border-line px-6 py-5 text-xl">Isi pesanan</h2>
                 <ul class="divide-y divide-line">
@@ -86,15 +123,15 @@
             <dl class="mt-4 flex flex-col gap-2 text-[15px]">
                 <div class="flex justify-between">
                     <dt class="text-ink-muted">Subtotal</dt>
-                    <dd class="tabular-nums">@rupiah($keranjang?->subtotal() ?? 0)</dd>
+                    <dd class="tabular-nums">@rupiah($subtotal)</dd>
                 </div>
                 <div class="flex justify-between">
                     <dt class="text-ink-muted">Ongkir</dt>
-                    <dd class="tabular-nums">@rupiah(0)</dd>
+                    <dd class="tabular-nums">{{ $ongkir === null ? 'Pilih kurir' : \App\Support\Format::rupiah($ongkir) }}</dd>
                 </div>
                 <div class="mt-2 flex items-baseline justify-between border-t border-line pt-3">
                     <dt class="font-medium">Total</dt>
-                    <dd class="price text-[28px] leading-none">@rupiah($keranjang?->subtotal() ?? 0)</dd>
+                    <dd class="price text-[28px] leading-none">@rupiah($subtotal + ($ongkir ?? 0))</dd>
                 </div>
             </dl>
             <button type="button" wire:click="bayar" class="btn btn-primary mt-5 w-full" wire:loading.attr="disabled" wire:target="bayar">

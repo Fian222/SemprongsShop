@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Exceptions\KeranjangDitolak;
+use App\Pengiriman\BarangKiriman;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -128,6 +129,21 @@ class Keranjang extends Model
     public function subtotal(): int
     {
         return $this->items->sum(fn (ItemKeranjang $item) => $item->jumlahHarga());
+    }
+
+    /**
+     * Isi keranjang sebagai barang kiriman untuk menghitung ongkir.
+     *
+     * @return list<BarangKiriman>
+     */
+    public function barangKiriman(): array
+    {
+        return $this->items->map(fn (ItemKeranjang $item) => new BarangKiriman(
+            $item->varian->produk->nama.' '.$item->varian->nama,
+            $item->varian->harga,
+            $item->varian->berat,
+            $item->jumlah,
+        ))->all();
     }
 
     public function jumlahBarang(): int

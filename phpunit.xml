@@ -34,6 +34,7 @@
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <env name="PEMBAYARAN_DRIVER" value="simulasi"/>
+        <env name="PENGIRIMAN_DRIVER" value="simulasi"/>
         <env name="MIDTRANS_SERVER_KEY" value="SB-Mid-server-UJICOBA"/>
         <env name="MIDTRANS_CLIENT_KEY" value="SB-Mid-client-UJICOBA"/>
     </php>

@@ -51,7 +51,17 @@
                     <p class="font-medium">{{ $pesanan->alamat['penerima'] }} <span class="font-normal text-ink-muted">· {{ $pesanan->alamat['label'] }}</span></p>
                     <p class="text-ink-muted">{{ $pesanan->alamat['no_hp'] }}</p>
                     <p class="text-ink-muted">{{ $pesanan->alamat['alamat'] }}, {{ $pesanan->alamat['kode_pos'] }}</p>
+                    @if ($pesanan->alamat['area_nama'] ?? null)
+                        <p class="text-ink-muted">{{ $pesanan->alamat['area_nama'] }}</p>
+                    @endif
                 </div>
+                @if ($pesanan->pengiriman)
+                    <p class="mt-4 flex flex-wrap items-center gap-x-2 border-t border-line pt-4 text-[15px]">
+                        <x-icon name="package" class="size-5 text-brand" />
+                        <span class="font-medium">{{ $pesanan->pengiriman->label() }}</span>
+                        <span class="text-ink-muted">· estimasi {{ $pesanan->pengiriman->estimasi }} · {{ number_format($pesanan->pengiriman->berat / 1000, 1, ',', '.') }} kg</span>
+                    </p>
+                @endif
             </section>
         </div>
 
@@ -63,7 +73,7 @@
                     <dd class="tabular-nums">@rupiah($pesanan->subtotal)</dd>
                 </div>
                 <div class="flex justify-between">
-                    <dt class="text-ink-muted">Ongkir</dt>
+                    <dt class="text-ink-muted">Ongkir{{ $pesanan->pengiriman ? ' '.$pesanan->pengiriman->nama_kurir : '' }}</dt>
                     <dd class="tabular-nums">@rupiah($pesanan->ongkir)</dd>
                 </div>
                 @if ($pesanan->diskon)

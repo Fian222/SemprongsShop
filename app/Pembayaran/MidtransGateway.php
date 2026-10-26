@@ -23,7 +23,7 @@ class MidtransGateway implements PaymentGateway
             throw new RuntimeException('MIDTRANS_SERVER_KEY belum diisi.');
         }
 
-        $pesanan->loadMissing('items', 'user');
+        $pesanan->loadMissing('items', 'user', 'pengiriman');
         $alamat = $pesanan->alamat;
 
         $respons = Http::withBasicAuth($this->serverKey, '')
@@ -34,13 +34,18 @@ class MidtransGateway implements PaymentGateway
                     'order_id' => $referensi,
                     'gross_amount' => $pesanan->total,
                 ],
-                // jumlah harga item harus sama dengan gross_amount
+                // jumlah harga item harus sama dengan gross_amount, jadi ongkir ikut sebagai item
                 'item_details' => $pesanan->items->map(fn ($item) => [
                     'id' => $item->sku,
                     'price' => $item->harga,
                     'quantity' => $item->jumlah,
                     'name' => Str::limit($item->nama_produk.' '.$item->nama_varian, 50, ''),
-                ])->all(),
+                ])->when($pesanan->ongkir > 0, fn ($items) => $items->push([
+                    'id' => 'ONGKIR',
+                    'price' => $pesanan->ongkir,
+                    'quantity' => 1,
+                    'name' => Str::limit('Ongkir '.$pesanan->pengiriman->label(), 50, ''),
+                ]))->all(),
                 'customer_details' => [
                     'first_name' => $pesanan->user->name,
                     'email' => $pesanan->user->email,

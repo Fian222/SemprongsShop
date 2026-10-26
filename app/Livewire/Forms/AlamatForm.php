@@ -4,6 +4,10 @@ namespace App\Livewire\Forms;
 
 use App\Models\Alamat;
 use App\Models\User;
+use App\Pengiriman\Area;
+use App\Pengiriman\OngkirGagal;
+use App\Pengiriman\ShippingProvider;
+use Illuminate\Validation\ValidationException;
 use Livewire\Form;
 
 class AlamatForm extends Form
@@ -18,7 +22,8 @@ class AlamatForm extends Form
 
     public $alamat_lengkap = '';
 
-    public $kode_pos = '';
+    // area tujuan ongkir: ['id' => ..., 'nama' => ..., 'kode_pos' => ...], diisi komponen PilihArea
+    public $area = null;
 
     public $utama = false;
 
@@ -30,7 +35,7 @@ class AlamatForm extends Form
             'penerima' => $alamat->penerima,
             'no_hp' => $alamat->no_hp,
             'alamat_lengkap' => $alamat->alamat,
-            'kode_pos' => $alamat->kode_pos,
+            'area' => $alamat->area_id ? ['id' => $alamat->area_id, 'nama' => $alamat->area_nama, 'kode_pos' => $alamat->kode_pos] : null,
             'utama' => $alamat->utama,
         ]);
     }
@@ -45,12 +50,16 @@ class AlamatForm extends Form
             'penerima' => ['required', 'string', 'max:100'],
             'no_hp' => ['required', 'regex:/^(\+62|62|0)8[1-9][0-9]{7,10}$/'],
             'alamat_lengkap' => ['required', 'string', 'max:500'],
-            'kode_pos' => ['required', 'digits:5'],
+            'area' => ['required', 'array'],
+            'area.id' => ['required', 'string', 'max:100'],
+            'area.nama' => ['required', 'string', 'max:255'],
             'utama' => ['boolean'],
         ], [
+            'area.required' => 'Pilih area tujuan supaya ongkir bisa dihitung.',
             'no_hp.regex' => 'No. HP harus diawali 08 / 62 / +62 dan terdiri dari 10–13 digit.',
-            'kode_pos.digits' => 'Kode pos terdiri dari 5 angka.',
         ]);
+
+        $area = $this->areaDariProvider($data['area']['id'], $data['area']['nama']);
 
         $alamat = $this->alamat ?? $user->alamats()->make();
         $alamat->fill([
@@ -58,7 +67,10 @@ class AlamatForm extends Form
             'penerima' => $data['penerima'],
             'no_hp' => $data['no_hp'],
             'alamat' => $data['alamat_lengkap'],
-            'kode_pos' => $data['kode_pos'],
+            // kode pos ikut area, supaya tidak berbeda dengan area yang dipakai menghitung ongkir
+            'kode_pos' => (string) $area->kodePos,
+            'area_id' => $area->id,
+            'area_nama' => $area->nama,
         ])->save();
 
         // alamat pertama otomatis menjadi utama
@@ -69,5 +81,23 @@ class AlamatForm extends Form
         $this->reset();
 
         return $alamat;
+    }
+
+    // area dari browser diperiksa ulang ke provider; ID karangan atau nama yang tidak cocok ditolak
+    protected function areaDariProvider(string $id, string $nama): Area
+    {
+        try {
+            $area = collect(app(ShippingProvider::class)->cariArea($nama))->first(fn (Area $a) => $a->id === $id);
+        } catch (OngkirGagal $e) {
+            report($e);
+
+            throw ValidationException::withMessages(['form.area' => $e->getMessage()]);
+        }
+
+        if (! $area) {
+            throw ValidationException::withMessages(['form.area' => 'Area tujuan tidak dikenal. Cari dan pilih ulang areanya.']);
+        }
+
+        return $area;
     }
 }

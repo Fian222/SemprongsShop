@@ -7,6 +7,7 @@ use App\Enums\StatusPesanan;
 use App\Exceptions\KeranjangDitolak;
 use App\Exceptions\TransisiTidakSah;
 use App\Pembayaran\PaymentGateway;
+use App\Pengiriman\Tarif;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -54,6 +55,11 @@ class Pesanan extends Model
         return $this->hasMany(ItemPesanan::class)->orderBy('id');
     }
 
+    public function pengiriman(): HasOne
+    {
+        return $this->hasOne(Pengiriman::class);
+    }
+
     public function pembayaran(): HasOne
     {
         return $this->hasOne(Pembayaran::class);
@@ -66,18 +72,19 @@ class Pesanan extends Model
 
     /**
      * Membuat pesanan dari isi keranjang dan memesan stoknya dalam satu transaksi. Baris varian dikunci,
-     * jadi dua checkout yang berebut stok terakhir tidak bisa sama-sama berhasil. Harga dihitung ulang dari varian.
+     * jadi dua checkout yang berebut stok terakhir tidak bisa sama-sama berhasil. Harga dihitung ulang dari varian;
+     * ongkir datang dari $tarif yang baru saja dikonfirmasi ke ShippingProvider untuk berat keranjang ini.
      *
      * @throws KeranjangDitolak
      */
-    public static function buatDariKeranjang(Keranjang $keranjang, Alamat $alamat): self
+    public static function buatDariKeranjang(Keranjang $keranjang, Alamat $alamat, Tarif $tarif): self
     {
         // dua checkout pertama di hari yang sama bisa mendapat nomor yang sama; yang kalah mencoba lagi
-        return retry(3, fn () => DB::transaction(fn () => static::pesanDariKeranjang($keranjang, $alamat), 3),
+        return retry(3, fn () => DB::transaction(fn () => static::pesanDariKeranjang($keranjang, $alamat, $tarif), 3),
             when: fn ($e) => $e instanceof UniqueConstraintViolationException);
     }
 
-    protected static function pesanDariKeranjang(Keranjang $keranjang, Alamat $alamat): self
+    protected static function pesanDariKeranjang(Keranjang $keranjang, Alamat $alamat, Tarif $tarif): self
     {
         $items = $keranjang->items()->lockForUpdate()->get();
         // klik ganda: request kedua mendapati keranjang yang sudah dikosongkan request pertama
@@ -92,6 +99,11 @@ class Pesanan extends Model
             $varians[$item->varian_id]->pastikanBisaDipesan($item->jumlah);
         }
 
+        // isi tas berubah (tab lain) sesudah ongkir dihitung: ongkirnya tidak lagi sesuai
+        if ($items->sum(fn ($item) => $varians[$item->varian_id]->berat * $item->jumlah) !== $tarif->berat) {
+            throw KeranjangDitolak::beratBerubah();
+        }
+
         $subtotal = $items->sum(fn ($item) => $varians[$item->varian_id]->harga * $item->jumlah);
 
         $pesanan = static::create([
@@ -99,9 +111,9 @@ class Pesanan extends Model
             'user_id' => $alamat->user_id,
             'alamat' => $alamat->salinan(),
             'subtotal' => $subtotal,
-            'ongkir' => 0,
+            'ongkir' => $tarif->ongkir,
             'diskon' => 0,
-            'total' => $subtotal,
+            'total' => $subtotal + $tarif->ongkir,
             'status' => StatusPesanan::MenungguPembayaran,
             'batas_bayar' => now()->addHours(config('pembayaran.batas_bayar_jam')),
         ]);
@@ -121,6 +133,7 @@ class Pesanan extends Model
             $varian->decrement('stok', $item->jumlah);
         }
 
+        $pesanan->pengiriman()->save(Pengiriman::dariTarif($tarif));
         $keranjang->items()->delete();
 
         return $pesanan;

@@ -13,6 +13,11 @@ class KeranjangDitolak extends DomainException
         return new self('Tas belanjamu kosong.');
     }
 
+    public static function beratBerubah(): self
+    {
+        return new self('Isi tas belanjamu berubah. Pilih ulang kurir supaya ongkirnya sesuai.');
+    }
+
     public static function tidakDijual(Varian $varian): self
     {
         return new self("{$varian->produk->nama} {$varian->nama} sedang tidak dijual.");
