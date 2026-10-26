@@ -134,9 +134,9 @@
                 <li class="flex gap-3"><x-icon name="package" class="mt-0.5 size-[18px] text-brand" />
                     <span><b class="font-medium">Dibuat setelah dipesan</b>, lalu dikemas rapat supaya tetap garing.</span></li>
                 <li class="flex gap-3"><x-icon name="landmark" class="mt-0.5 size-[18px] text-brand" />
-                    <span><b class="font-medium">Bayar lewat transfer {{ config('toko.rekening.bank') }}</b> setelah checkout.</span></li>
+                    <span><b class="font-medium">Bayar lewat QRIS, e-wallet, VA, atau kartu</b> setelah checkout.</span></li>
                 <li class="flex gap-3"><x-icon name="circle-check" class="mt-0.5 size-[18px] text-brand" />
-                    <span><b class="font-medium">Dikonfirmasi admin</b>, statusnya bisa dipantau di Riwayat.</span></li>
+                    <span><b class="font-medium">Status otomatis</b> begitu pembayaran diterima, pantau di Pesanan saya.</span></li>
             </ul>
         </div>
     </div>

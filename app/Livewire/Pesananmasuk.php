@@ -2,27 +2,17 @@
 
 namespace App\Livewire;
 
-use App\Models\pesanan;
+use App\Enums\StatusPesanan;
+use App\Models\Pesanan;
 use Livewire\Component;
 
+// Interim sampai halaman pesanan admin #17: pesanan yang sudah dibayar dan perlu disiapkan
 class Pesananmasuk extends Component
 {
-    protected $pesanan;
-
-    public function konfirmasi($id)
-    {
-        $pesanan = pesanan::find($id);
-        $pesanan->status = 2;
-        $pesanan->update();
-
-        session()->flash('message', 'Berhasil dikonfirmasi');
-    }
-
     public function render()
     {
-        $this->pesanan = pesanan::where('status', '=', 1)->get();
         return view('livewire.pesananmasuk', [
-            'pesanan' => $this->pesanan,
+            'pesanan' => Pesanan::status(StatusPesanan::Dibayar)->with('user', 'items')->oldest('dibayar_at')->get(),
         ])
             ->extends('layouts.adminapp')
             ->section('content');

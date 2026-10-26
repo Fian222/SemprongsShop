@@ -50,15 +50,15 @@
             <div>
                 <h2 class="text-[clamp(2rem,3.6vw,3.25rem)] leading-[1.05]">Cara memesan</h2>
                 <p class="mt-4 max-w-[44ch] leading-relaxed text-ink-muted">
-                    Pesanan dibayar lewat transfer bank, lalu admin mengecek pembayaranmu dan menyiapkan paket.
+                    Bayar dengan cara yang kamu suka, lalu kami panggang dan kemas pesananmu.
                 </p>
             </div>
             <ol class="border-t border-line-strong">
                 @foreach ([
-                    ['Pilih rasa dan jumlah', 'Stok di setiap produk selalu terkini.'],
-                    ['Isi alamat dan No. HP', 'Di halaman checkout.'],
-                    ['Transfer sesuai total', 'Ke '.config('toko.rekening.bank').' '.config('toko.rekening.nomor').' a.n. '.config('toko.rekening.nama').'.'],
-                    ['Pesanan dikonfirmasi', 'Statusnya berubah jadi Sudah Lunas di Riwayat pesanan.'],
+                    ['Pilih rasa dan kemasan', 'Stok di setiap kemasan selalu terkini.'],
+                    ['Pilih alamat pengiriman', 'Simpan beberapa alamat di buku alamat.'],
+                    ['Bayar dalam 24 jam', 'QRIS, e-wallet, virtual account, atau kartu.'],
+                    ['Pesanan disiapkan', 'Status berubah sendiri begitu pembayaran diterima.'],
                 ] as [$judul, $ket])
                     <li class="grid grid-cols-[3.5rem_1fr] border-b border-line-strong py-5">
                         <span class="font-display text-[32px] leading-none text-brand">{{ $loop->iteration }}</span>

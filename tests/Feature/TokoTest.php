@@ -5,11 +5,9 @@ namespace Tests\Feature;
 use App\Livewire\Admin\DaftarProduk;
 use App\Livewire\Checkout;
 use App\Livewire\Navbar;
-use App\Livewire\Pesananmasuk;
 use App\Livewire\ProdukDetail;
 use App\Models\admin;
-use App\Models\Keranjang;
-use App\Models\pesanan;
+use App\Models\Pesanan;
 use App\Models\Produk;
 use App\Models\User;
 use App\Models\Varian;
@@ -91,7 +89,7 @@ class TokoTest extends TestCase
     {
         $this->get('/tas-belanja')->assertOk();
         $this->get('/checkout')->assertRedirect(route('login'));
-        $this->get('/history')->assertRedirect(route('login'));
+        $this->get('/pesanan')->assertRedirect(route('login'));
     }
 
     public function test_pencarian_produk_admin_kembali_ke_halaman_pertama()
@@ -105,13 +103,11 @@ class TokoTest extends TestCase
             ->assertSet('paginators.page', 1);
     }
 
-    public function test_alur_pesan_sampai_checkout()
+    public function test_alur_belanja_sampai_dibayar_dan_masuk_ke_admin()
     {
         $this->travelTo(now()->setDate(2026, 10, 22)->setTime(9, 30));
-
         $user = User::factory()->create();
         $varian = $this->buatVarian();
-
         $this->actingAs($user);
 
         Livewire::test(ProdukDetail::class, ['slug' => $varian->produk->slug])
@@ -121,86 +117,23 @@ class TokoTest extends TestCase
 
         $this->get('/tas-belanja')->assertOk()->assertSee('Rp 30.000');
 
-        Livewire::test(Checkout::class)
-            ->assertSet('total_harga', 30000)
-            ->set('nohp', '081234567890')
-            ->set('alamat', 'Jl. Merdeka 1')
-            ->call('checkout')
-            ->assertRedirect(route('history'));
+        $checkout = Livewire::test(Checkout::class)->assertSee('Alamat baru');
+        foreach (['label' => 'Rumah', 'penerima' => 'Budi', 'no_hp' => '081234567890', 'alamat_lengkap' => 'Jl. Merdeka 1', 'kode_pos' => '40111'] as $kolom => $nilai) {
+            $checkout->set("form.$kolom", $nilai);
+        }
+        $checkout->call('simpanAlamat')->assertHasNoErrors()->call('bayar');
 
-        $pesanan = pesanan::where('id_user', $user->id)->firstOrFail();
-        $this->assertSame('1', (string) $pesanan->status);
-        $this->assertSame(30000, (int) $pesanan->total_harga);
-        $this->assertSame('SP-'.$pesanan->id, $pesanan->kode_pemesanan);
+        $pesanan = Pesanan::firstOrFail();
+        $this->assertSame('SMP-20261022-0001', $pesanan->nomor);
         $this->assertSame(8, $varian->fresh()->stok);
-        $this->assertSame('Jl. Merdeka 1', $user->fresh()->alamat);
         Livewire::test(Navbar::class)->assertSee('Tas (0)');
 
-        $this->get('/history')->assertOk()
-            ->assertSee('Belum Lunas')
-            ->assertSee('22 Okt 2026, 09:30')
-            ->assertSee('Toples kecil')
-            ->assertSee('Rp 30.000');
-    }
+        $this->post(route('pembayaran.simulasi', $pesanan), ['status' => 'settlement']);
+        $this->get('/pesanan')->assertOk()->assertSee('Dibayar')->assertSee('Rp 30.000');
 
-    public function test_checkout_ditolak_bila_stok_tidak_lagi_cukup()
-    {
-        $user = User::factory()->create();
-        $varian = $this->buatVarian(['stok' => 3]);
-        $this->actingAs($user);
-        Keranjang::milikPengunjungAtauBaru()->tambah($varian, 3);
-        $varian->update(['stok' => 2]);
-
-        Livewire::test(Checkout::class)
-            ->set('nohp', '081234567890')
-            ->set('alamat', 'Jl. Merdeka 1')
-            ->call('checkout')
-            ->assertNoRedirect()
-            ->assertSee('Stok Toples kecil tinggal 2.');
-
-        $this->assertSame(0, pesanan::count());
-        $this->assertSame(2, $varian->fresh()->stok);
-    }
-
-    public function test_checkout_dengan_tas_kosong_kembali_ke_tas_belanja()
-    {
-        $this->actingAs(User::factory()->create());
-
-        $this->get('/checkout')->assertRedirect(route('keranjang'));
-    }
-
-    protected function isiKeranjang(User $user): void
-    {
-        $this->actingAs($user);
-        Keranjang::milikPengunjungAtauBaru()->tambah($this->buatVarian(), 1);
-    }
-
-    public function test_checkout_menolak_nomor_hp_yang_terlalu_panjang()
-    {
-        $this->isiKeranjang($user = User::factory()->create());
-
-        Livewire::test(Checkout::class)
-            ->set('nohp', '08515591224124')
-            ->set('alamat', 'Jl. Merdeka 1')
-            ->call('checkout')
-            ->assertHasErrors('nohp');
-
-        $this->assertSame(0, pesanan::count());
-    }
-
-    public function test_checkout_menerima_nomor_hp_dengan_spasi_dan_tanda_hubung()
-    {
-        $this->isiKeranjang($user = User::factory()->create());
-
-        Livewire::test(Checkout::class)
-            ->set('nohp', '0812-345 678')
-            ->set('alamat', 'Jl. Merdeka 1')
-            ->call('checkout')
-            ->assertHasNoErrors()
-            ->assertRedirect(route('history'));
-
-        $this->assertSame('0812345678', $user->fresh()->notelp);
-        $this->assertSame('1', (string) pesanan::firstOrFail()->status);
+        $this->actingAs($this->admin, 'adminMiddle');
+        $this->get('/admin/pesananmasuk')->assertOk()->assertSee('SMP-20261022-0001')->assertSee('Toples kecil');
+        $this->get('/admin/dashboard')->assertOk()->assertSee('Pesanan dibayar, perlu disiapkan');
     }
 
     public function test_halaman_admin_bisa_dibuka()
@@ -224,20 +157,5 @@ class TokoTest extends TestCase
             ->assertRedirect(route('admin.dashboard'));
 
         $this->assertAuthenticatedAs($this->admin, 'adminMiddle');
-    }
-
-    public function test_admin_konfirmasi_pesanan()
-    {
-        $user = User::factory()->create();
-        // 'status' tidak ada di $fillable model pesanan
-        $pesanan = pesanan::create(['id_user' => $user->id, 'total_harga' => 15000]);
-        $pesanan->status = 1;
-        $pesanan->save();
-
-        Livewire::test(Pesananmasuk::class)
-            ->assertSee($user->name)
-            ->call('konfirmasi', $pesanan->id);
-
-        $this->assertSame('2', (string) $pesanan->fresh()->status);
     }
 }

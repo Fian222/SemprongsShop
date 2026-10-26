@@ -75,3 +75,33 @@ _Avoid_: Detail pesanan, baris keranjang
 **Subtotal**:
 Jumlah harga × jumlah semua Item keranjang, sebelum ongkir dan diskon.
 _Avoid_: Total (total sudah termasuk ongkir dan diskon)
+
+## Pesanan dan pembayaran
+
+**Alamat**:
+Alamat pengiriman yang disimpan Pelanggan di buku alamatnya. Satu di antaranya adalah **alamat utama**, yang terpilih lebih dulu saat checkout.
+_Avoid_: Lokasi, tujuan
+
+**Pesanan**:
+Isi Keranjang yang sudah di-checkout Pelanggan, dengan nomor seperti SMP-20261026-0001. Pesanan menyimpan salinan alamat dan barang saat dibuat, jadi perubahan katalog atau buku alamat tidak mengubahnya.
+_Avoid_: Order, transaksi, keranjang
+
+**Item pesanan**:
+Salinan satu Varian di Pesanan: nama produk, nama varian, SKU, harga satuan, jumlah, dan berat saat dipesan.
+_Avoid_: Detail pesanan
+
+**Total**:
+Jumlah yang dibayar untuk Pesanan: Subtotal + ongkir − diskon.
+_Avoid_: Grand total, total harga
+
+**Batas bayar**:
+Waktu terakhir Pesanan boleh dibayar, 24 jam sesudah dibuat. Selama itu stoknya dipesankan; lewat dari itu Pesanan menjadi Kedaluwarsa.
+_Avoid_: Deadline, jatuh tempo
+
+**Pembayaran**:
+Transaksi di payment gateway untuk satu Pesanan, beserta metode dan notifikasi terakhirnya.
+_Avoid_: Transfer, pelunasan
+
+**Status pesanan**:
+Menunggu pembayaran → Dibayar → Diproses → Dikirim → Selesai. Pesanan yang belum dibayar bisa berakhir Kedaluwarsa atau Dibatalkan, dan stoknya kembali. Perubahan lain ditolak.
+_Avoid_: Lunas/belum lunas, dikonfirmasi

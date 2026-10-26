@@ -8,6 +8,11 @@ use DomainException;
 // Perubahan keranjang yang tidak bisa dipenuhi; pesannya siap ditampilkan ke pembeli
 class KeranjangDitolak extends DomainException
 {
+    public static function kosong(): self
+    {
+        return new self('Tas belanjamu kosong.');
+    }
+
     public static function tidakDijual(Varian $varian): self
     {
         return new self("{$varian->produk->nama} {$varian->nama} sedang tidak dijual.");

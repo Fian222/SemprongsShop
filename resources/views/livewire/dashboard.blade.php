@@ -7,7 +7,7 @@
                 <x-icon name="clipboard-list" class="size-6" />
             </span>
             <div class="flex-1">
-                <p class="text-sm text-ink-muted">Pesanan menunggu konfirmasi</p>
+                <p class="text-sm text-ink-muted">Pesanan dibayar, perlu disiapkan</p>
                 <p class="price mt-0.5 text-3xl">{{ $dataorder }}</p>
             </div>
             <span class="text-sm font-medium text-brand group-hover:underline">Periksa</span>

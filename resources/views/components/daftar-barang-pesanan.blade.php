@@ -1,12 +1,11 @@
 {{-- Daftar barang di dalam satu pesanan, untuk tabel admin --}}
 @props(['pesanan'])
 
-<ul class="flex flex-col gap-2">
-    @foreach ($pesanan->pesanandetail as $pesan)
+<ul class="flex flex-col gap-1.5">
+    @foreach ($pesanan->items as $item)
         <li class="flex items-center gap-2.5">
-            <x-foto-produk :foto="$pesan->varian->produk->fotoUtama" class="size-9 rounded-xs bg-surface-muted" />
-            <span class="whitespace-nowrap">{{ $pesan->varian->produk->nama }} <span class="text-ink-muted">· {{ $pesan->varian->nama }}</span></span>
-            <span class="text-ink-muted tabular-nums">× {{ $pesan->jumlah_pesanan }}</span>
+            <span class="whitespace-nowrap">{{ $item->nama_produk }} <span class="text-ink-muted">· {{ $item->nama_varian }}</span></span>
+            <span class="text-ink-muted tabular-nums">× {{ $item->jumlah }}</span>
         </li>
     @endforeach
 </ul>

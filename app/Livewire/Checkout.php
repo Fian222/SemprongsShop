@@ -3,23 +3,21 @@
 namespace App\Livewire;
 
 use App\Exceptions\KeranjangDitolak;
+use App\Livewire\Forms\AlamatForm;
 use App\Models\Keranjang;
-use App\Models\pesanan;
-use App\Models\pesanandetail;
-use App\Models\User;
-use App\Models\Varian;
+use App\Models\Pesanan;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
-// Checkout sementara: isi keranjang menjadi pesanan lama (status 1, bayar transfer) sampai checkout Midtrans #15
 class Checkout extends Component
 {
-    public $total_harga;
+    public $alamatId;
 
-    public $nohp;
+    public AlamatForm $form;
 
-    public $alamat;
+    // formulir alamat baru terbuka di halaman checkout
+    public $tambahAlamat = false;
 
     public function mount()
     {
@@ -27,91 +25,54 @@ class Checkout extends Component
             return redirect()->guest(route('login'));
         }
 
-        $keranjang = Keranjang::milikPengunjung();
-        if (! $keranjang || $keranjang->items->isEmpty()) {
+        if (! Keranjang::milikPengunjung()?->items()->exists()) {
             return redirect()->route('keranjang');
         }
 
-        $this->nohp = Auth::user()->notelp;
-        $this->alamat = Auth::user()->alamat;
-        $this->total_harga = $keranjang->subtotal();
+        $this->alamatId = Auth::user()->alamats()->value('id');
+        $this->tambahAlamat = ! $this->alamatId;
     }
 
-    public function checkout()
+    public function simpanAlamat()
     {
-        // user sering menulis nomor dengan spasi/tanda hubung, mis. 0812-3456-7890
-        $this->nohp = preg_replace('/[\s\-]/', '', (string) $this->nohp);
+        $this->alamatId = $this->form->simpan(Auth::user())->id;
+        $this->tambahAlamat = false;
+    }
 
+    public function bayar()
+    {
         $this->validate([
-            'nohp' => ['required', 'regex:/^(\+62|62|0)8[1-9][0-9]{7,10}$/'],
-            'alamat' => 'required',
+            'alamatId' => ['required', Rule::exists('alamats', 'id')->where('user_id', Auth::id())],
         ], [
-            'nohp.regex' => 'No. HP harus diawali 08 / 62 / +62 dan terdiri dari 10–13 digit.',
+            'alamatId.required' => 'Pilih atau tambahkan alamat pengiriman dulu.',
         ]);
 
         $keranjang = Keranjang::milikPengunjung();
-        if (! $keranjang || $keranjang->items->isEmpty()) {
+        if (! $keranjang?->items()->exists()) {
             return redirect()->route('keranjang');
         }
 
         try {
-            $this->buatPesanan($keranjang);
+            $pesanan = Pesanan::buatDariKeranjang($keranjang, Auth::user()->alamats()->find($this->alamatId));
         } catch (KeranjangDitolak $e) {
             return $this->addError('keranjang', $e->getMessage());
         }
 
-        // simpan nomor hp dan alamat ke user
-        $user = User::where('id', Auth::user()->id)->first();
-        $user->notelp = $this->nohp;
-        $user->alamat = $this->alamat;
-        $user->update();
-
         $this->dispatch('keranjang-diperbarui');
 
-        session()->flash('message', 'Pesanan dibuat. Silakan transfer sesuai total.');
-
-        return redirect()->route('history');
-    }
-
-    // Stok dipesan di sini, bukan saat masuk keranjang. Baris varian dikunci supaya dua checkout tidak berebut stok yang sama.
-    protected function buatPesanan(Keranjang $keranjang): pesanan
-    {
-        return DB::transaction(function () use ($keranjang) {
-            $items = $keranjang->items()->lockForUpdate()->get();
-            $varians = Varian::whereIn('id', $items->pluck('varian_id'))->lockForUpdate()->get()->keyBy('id');
-
-            foreach ($items as $item) {
-                $varians[$item->varian_id]->pastikanBisaDipesan($item->jumlah);
-            }
-
-            $pesanan = pesanan::create([
-                'id_user' => Auth::user()->id,
-                'total_harga' => $items->sum(fn ($item) => $varians[$item->varian_id]->harga * $item->jumlah),
-            ]);
-            $pesanan->status = 1;
-            $pesanan->kode_pemesanan = 'SP-'.$pesanan->id;
-            $pesanan->save();
-
-            foreach ($items as $item) {
-                $varian = $varians[$item->varian_id];
-                pesanandetail::create([
-                    'id_varian' => $varian->id,
-                    'id_pesanan' => $pesanan->id,
-                    'jumlah_pesanan' => $item->jumlah,
-                    'total_harga' => $varian->harga * $item->jumlah,
-                ]);
-                $varian->decrement('stok', $item->jumlah);
-            }
-
-            $keranjang->items()->delete();
-
-            return $pesanan;
-        });
+        // halaman detail langsung membuka jendela pembayaran
+        return redirect()->to(route('pesanan.detail', $pesanan).'?bayar=1');
     }
 
     public function render()
     {
-        return view('livewire.checkout')
+        $keranjang = Keranjang::milikPengunjung();
+        $keranjang?->load('items.varian.produk.fotoUtama');
+
+        return view('livewire.checkout', [
+            'keranjang' => $keranjang,
+            'alamats' => Auth::user()->alamats,
+        ])
             ->extends('layouts.app')
             ->section('content');
     }

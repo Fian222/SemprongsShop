@@ -20,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->redirectUsersTo('/');
 
+        $middleware->validateCsrfTokens(except: ['pembayaran/notifikasi']);
+
         $middleware->throttleApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {

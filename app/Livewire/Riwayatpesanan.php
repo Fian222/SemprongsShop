@@ -2,17 +2,19 @@
 
 namespace App\Livewire;
 
-use App\Models\pesanan;
+use App\Models\Pesanan;
 use Livewire\Component;
+use Livewire\WithPagination;
 
+// Interim sampai halaman pesanan admin #17: semua pesanan, terbaru di atas
 class Riwayatpesanan extends Component
 {
-    protected $pesanan;
+    use WithPagination;
+
     public function render()
     {
-        $this->pesanan = pesanan::where('status', '=', 2)->get();
         return view('livewire.riwayatpesanan', [
-            'pesanan' => $this->pesanan,
+            'pesanan' => Pesanan::with('user', 'items')->latest('id')->paginate(20),
         ])
             ->extends('layouts.adminapp')
             ->section('content');

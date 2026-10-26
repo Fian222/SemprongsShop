@@ -1,7 +1,7 @@
-{{-- Posisi pembeli di alur pesan: 1 = tas belanja, 2 = checkout, 3 = menunggu konfirmasi --}}
+{{-- Posisi pembeli di alur pesan: 1 = tas belanja, 2 = checkout, 3 = pembayaran --}}
 @props(['aktif'])
 
-@php($langkah = ['Tas belanja', 'Checkout', 'Konfirmasi admin'])
+@php($langkah = ['Tas belanja', 'Checkout', 'Pembayaran'])
 
 <ol aria-label="Langkah pemesanan" class="flex items-center gap-2 text-sm">
     @foreach ($langkah as $label)

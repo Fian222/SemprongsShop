@@ -2,7 +2,8 @@
 
 namespace App\Livewire;
 
-use App\Models\pesanan;
+use App\Enums\StatusPesanan;
+use App\Models\Pesanan;
 use App\Models\User;
 use Livewire\Component;
 
@@ -10,9 +11,10 @@ class Dashboard extends Component
 {
     public function render()
     {
-        $order = pesanan::where('status', '=', 1)->count();
+        $order = Pesanan::status(StatusPesanan::Dibayar)->count();
         $users = User::count();
         $pengguna = User::all();
+
         return view('livewire.dashboard', [
             'dataorder' => $order,
             'user' => $users,

@@ -31,13 +31,30 @@ class User extends Authenticatable
         ];
     }
 
-    public function pembayaran()
+    public function pesanans()
     {
-        return $this->hasMany(pembayaran::class, 'id_user', 'id');
+        return $this->hasMany(Pesanan::class)->latest('id');
     }
 
-    public function pesanan()
+    // tepat satu alamat utama selama pelanggan punya alamat
+    public function jadikanAlamatUtama(Alamat $alamat): void
     {
-        return $this->hasMany(pesanan::class, 'id_user', 'id');
+        $this->alamats()->whereKeyNot($alamat->id)->update(['utama' => false]);
+        $alamat->update(['utama' => true]);
+    }
+
+    public function hapusAlamat(Alamat $alamat): void
+    {
+        $alamat->delete();
+
+        if ($alamat->utama && $pengganti = $this->alamats()->oldest('id')->first()) {
+            $this->jadikanAlamatUtama($pengganti);
+        }
+    }
+
+    public function alamats()
+    {
+        // alamat utama selalu di urutan pertama
+        return $this->hasMany(Alamat::class)->orderByDesc('utama')->orderBy('id');
     }
 }

@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\admin;
-use App\Models\pesanan;
+use App\Models\Kategori;
 use App\Models\Produk;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -54,28 +54,24 @@ class AdminAksesTest extends TestCase
 
     public function test_aksi_livewire_admin_ditolak_setelah_logout()
     {
-        $pesanan = $this->buatPesananMasuk();
+        $kategori = Kategori::factory()->create();
 
         $this->actingAs($this->admin, 'adminMiddle');
-        $snapshot = $this->ambilSnapshot('/admin/pesananmasuk', 'pesananmasuk');
+        $snapshot = $this->ambilSnapshot('/admin/kategori', 'admin.kelola-kategori');
 
         Auth::guard('adminMiddle')->logout();
 
-        $this->kirimAksi($snapshot, 'konfirmasi', [$pesanan->id])->assertUnauthorized();
-
-        $this->assertSame('1', (string) $pesanan->fresh()->status);
+        $this->kirimAksi($snapshot, 'ubah', [$kategori->id])->assertUnauthorized();
     }
 
     public function test_aksi_livewire_admin_berjalan_saat_login()
     {
-        $pesanan = $this->buatPesananMasuk();
+        $kategori = Kategori::factory()->create();
 
         $this->actingAs($this->admin, 'adminMiddle');
-        $snapshot = $this->ambilSnapshot('/admin/pesananmasuk', 'pesananmasuk');
+        $snapshot = $this->ambilSnapshot('/admin/kategori', 'admin.kelola-kategori');
 
-        $this->kirimAksi($snapshot, 'konfirmasi', [$pesanan->id])->assertOk();
-
-        $this->assertSame('2', (string) $pesanan->fresh()->status);
+        $this->kirimAksi($snapshot, 'ubah', [$kategori->id])->assertOk();
     }
 
     public function test_aksi_varian_di_halaman_produk_ditolak_setelah_logout()
@@ -88,16 +84,6 @@ class AdminAksesTest extends TestCase
         Auth::guard('adminMiddle')->logout();
 
         $this->kirimAksi($snapshot, 'batal', [])->assertUnauthorized();
-    }
-
-    protected function buatPesananMasuk(): pesanan
-    {
-        // 'status' tidak ada di $fillable model pesanan
-        $pesanan = pesanan::create(['id_user' => User::factory()->create()->id, 'total_harga' => 15000]);
-        $pesanan->status = 1;
-        $pesanan->save();
-
-        return $pesanan;
     }
 
     protected function ambilSnapshot(string $url, string $komponen): string

@@ -1,7 +1,7 @@
 @php
     $menu = [
         ['label' => 'Semprong', 'route' => 'produk'],
-        ['label' => 'Riwayat pesanan', 'route' => 'history'],
+        ['label' => 'Pesanan saya', 'route' => 'pesanan.index'],
     ];
     $aktif = fn ($route) => $rute === $route;
 @endphp
@@ -38,9 +38,13 @@
                     </button>
                     <div x-cloak x-show="akun" x-transition.origin.top.right
                         class="card absolute right-0 mt-1 w-52 p-1 shadow-lg shadow-ink/10">
-                        <a wire:navigate href="{{ route('history') }}"
+                        <a wire:navigate href="{{ route('pesanan.index') }}"
                             class="flex items-center gap-2 px-3 py-2 text-sm text-ink-muted hover:bg-surface-muted hover:text-ink">
-                            <x-icon name="history" /> Riwayat pesanan
+                            <x-icon name="history" /> Pesanan saya
+                        </a>
+                        <a wire:navigate href="{{ route('alamat') }}"
+                            class="flex items-center gap-2 px-3 py-2 text-sm text-ink-muted hover:bg-surface-muted hover:text-ink">
+                            <x-icon name="map-pin" /> Buku alamat
                         </a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
