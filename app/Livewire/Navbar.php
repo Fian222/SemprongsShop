@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 class Navbar extends Component
 {
     public $jumlah = 0;
+
+    // rute halaman saat navbar pertama dirender; request() saat re-render Livewire adalah endpoint update
+    public $rute;
     protected $listeners = [
         'masukKeranjang' => 'updateKeranjang'
     ];
@@ -28,6 +31,8 @@ class Navbar extends Component
 
     public function mount()
     {
+        $this->rute = request()->route()?->getName();
+
         if (Auth::user()) {
             $pesanan = pesanan::where('id_user', Auth::user()->id)->where('status', 0)->first();
             if ($pesanan) {
@@ -41,7 +46,7 @@ class Navbar extends Component
     public function render()
     {
         return view('livewire.navbar', [
-            'jumlah_pesanan' => $this->jumlah
+            'jumlah_pesanan' => $this->jumlah,
         ]);
     }
 }

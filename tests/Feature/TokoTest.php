@@ -142,7 +142,7 @@ class TokoTest extends TestCase
             ->set('jumlah_pesanan', 2)
             ->call('masukkankeranjang')
             ->assertDispatched('masukKeranjang')
-            ->assertSee('Sukses Masuk Pesanan');
+            ->assertSee('Semprong masuk ke tas belanja.');
 
         $pesanan = pesanan::where('id_user', $user->id)->where('status', 0)->firstOrFail();
         $this->assertSame(30000, (int) $pesanan->total_harga);

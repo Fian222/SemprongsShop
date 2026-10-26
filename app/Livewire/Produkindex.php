@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\barang;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -10,9 +11,8 @@ class Produkindex extends Component
 {
     use WithPagination;
 
-    public $search;
-
-    protected $updateQueryString = ['search'];
+    #[Url(except: '')]
+    public $search = '';
 
     public function updatingSearch()
     {

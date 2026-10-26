@@ -3,54 +3,76 @@
 @source '../views';
 
 /*
- * Token warna "warm bakery". Utilitas memakai nama semantik (bg-canvas, text-ink, ...)
- * dan nilainya ditukar di dark mode lewat variabel CSS, jadi view tidak perlu kelas dark:.
+ * Token warna "Hampers" (#11): marun untuk aksi dan brand, champagne untuk pita dan aksen,
+ * emas untuk garis halus. Utilitas memakai nama semantik (bg-canvas, text-ink, ...) dan nilainya
+ * ditukar di dark mode lewat variabel CSS, jadi view tidak perlu kelas dark:.
+ *
+ * Skala: sudut 2px (rounded-xs) untuk semua tombol, kolom, kartu, dan panel; rounded-full hanya untuk
+ * bentuk bulat. Spasi memakai skala bawaan Tailwind (kelipatan 4px): jarak antarbagian halaman py-20/md:py-24,
+ * lebar konten dibatasi .wrap (1320px, gutter 16px di HP dan 40px mulai md).
  */
 @theme {
-    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-    --font-display: 'Fraunces', ui-serif, Georgia, serif;
+    --font-sans: 'Jost', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Bodoni Moda', Didot, ui-serif, Georgia, serif;
 
-    --color-canvas: #fbf6ee;
+    --color-canvas: #ffffff;
     --color-surface: #ffffff;
-    --color-surface-muted: #f5ecdf;
-    --color-line: #eadcc8;
-    --color-ink: #2b1d12;
-    --color-ink-muted: #7a6553;
+    --color-surface-muted: #f3f1f1;
+    --color-line: #e6e0e0;
+    --color-line-strong: #c9bfbf;
+    --color-ink: #231a1c;
+    --color-ink-muted: #6b5c5f;
 
-    --color-brand: #b45309;
-    --color-brand-hover: #92400e;
-    --color-brand-soft: #fdecd3;
+    --color-brand: #5e1a24;
+    --color-brand-hover: #3f0f17;
+    --color-brand-soft: #f6eaea;
     --color-on-brand: #ffffff;
 
-    --color-ok: #047857;
-    --color-ok-soft: #d1fae5;
-    --color-warn: #a16207;
-    --color-warn-soft: #fef3c7;
-    --color-bad: #be123c;
-    --color-bad-soft: #ffe4e6;
+    --color-champ: #e8d5b5;
+    --color-champ-hover: #f1e3cb;
+    --color-on-champ: #3f0f17;
+    --color-gold: #a88a57;
+
+    /* panel gelap: hero, footer korporat, dan sidebar admin; tetap marun tua di kedua tema */
+    --color-wine: #5e1a24;
+    --color-wine-deep: #3f0f17;
+    --color-on-wine: #e6d3cf;
+    --color-on-wine-strong: #ffffff;
+
+    --color-ok: #1f6b45;
+    --color-ok-soft: #e1f1e7;
+    --color-warn: #8a5a00;
+    --color-warn-soft: #fbefd4;
+    --color-bad: #a3202f;
+    --color-bad-soft: #fbe6e8;
     --color-on-bad: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --color-canvas: #17110d;
-        --color-surface: #221a14;
-        --color-surface-muted: #2c221b;
-        --color-line: #3d3027;
-        --color-ink: #f6ebdd;
-        --color-ink-muted: #b9a691;
+        --color-canvas: #171012;
+        --color-surface: #211719;
+        --color-surface-muted: #2b1f21;
+        --color-line: #3b2c2f;
+        --color-line-strong: #574347;
+        --color-ink: #f3ece8;
+        --color-ink-muted: #b9a8a6;
 
-        --color-brand: #f0a04b;
-        --color-brand-hover: #f6b977;
-        --color-brand-soft: #3b2615;
-        --color-on-brand: #1c130c;
+        /* di latar gelap, aksi utama memakai champagne supaya kontrasnya cukup */
+        --color-brand: #e8d5b5;
+        --color-brand-hover: #f1e3cb;
+        --color-brand-soft: #3a2a20;
+        --color-on-brand: #3f0f17;
 
-        --color-ok: #6ee7b7;
-        --color-ok-soft: #10342a;
-        --color-warn: #fcd34d;
-        --color-warn-soft: #3a2e10;
-        --color-bad: #fda4af;
-        --color-bad-soft: #3f1820;
+        --color-wine: #4a141c;
+        --color-wine-deep: #2c0a10;
+
+        --color-ok: #7fd3a3;
+        --color-ok-soft: #173326;
+        --color-warn: #f0c46a;
+        --color-warn-soft: #3a2e14;
+        --color-bad: #ff9aa5;
+        --color-bad-soft: #43191f;
         --color-on-bad: #2a0d13;
     }
 }
@@ -65,55 +87,81 @@
     }
 
     h1, h2, h3 {
-        @apply font-display tracking-tight;
+        @apply font-display font-medium tracking-tight text-balance;
+    }
+
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-gold;
     }
 
     [x-cloak] {
         display: none !important;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            transition-duration: 0s !important;
+            animation-duration: 0s !important;
+        }
+    }
 }
 
 @layer components {
+    .wrap {
+        @apply mx-auto w-full max-w-[1320px] px-4 md:px-10;
+    }
+
     .btn {
-        @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold
-            transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand
-            disabled:cursor-not-allowed disabled:opacity-50;
+        @apply inline-flex h-12 items-center justify-center gap-2 rounded-xs px-6 text-[15px] font-medium whitespace-nowrap
+            transition-colors disabled:cursor-not-allowed disabled:opacity-50;
     }
     .btn-primary {
         @apply bg-brand text-on-brand hover:bg-brand-hover;
     }
+    .btn-champ {
+        @apply bg-champ text-on-champ hover:bg-champ-hover;
+    }
     .btn-secondary {
-        @apply border border-line bg-surface text-ink hover:bg-surface-muted;
+        @apply border border-ink bg-transparent text-ink hover:bg-ink hover:text-canvas;
     }
     .btn-danger {
-        @apply bg-bad-soft text-bad hover:bg-bad hover:text-on-bad;
+        @apply text-ink-muted hover:bg-bad-soft hover:text-bad;
     }
     .btn-sm {
-        @apply px-3.5 py-1.5 text-xs;
+        @apply h-9 px-4 text-sm;
+    }
+    .btn-icon {
+        @apply size-11 px-0;
     }
 
     .card {
-        @apply rounded-2xl border border-line bg-surface shadow-sm;
+        @apply rounded-xs border border-line bg-surface;
+    }
+    .panel {
+        @apply rounded-xs bg-surface-muted;
     }
 
     .label {
         @apply mb-1.5 block text-sm font-medium text-ink;
     }
+    .hint {
+        @apply mt-1.5 text-sm text-ink-muted;
+    }
     .input {
-        @apply block w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink
-            placeholder:text-ink-muted/70 transition
-            focus:border-brand focus:ring-4 focus:ring-brand/15 focus:outline-none
-            file:mr-3 file:rounded-full file:border-0 file:bg-brand-soft file:px-3 file:py-1 file:text-sm file:font-semibold file:text-brand;
+        @apply block w-full rounded-xs border border-line-strong bg-surface px-3.5 py-3 text-[15px] text-ink
+            placeholder:text-ink-muted/80 transition-colors
+            focus:border-ink focus:outline-2 focus:outline-offset-1 focus:outline-gold
+            file:mr-3 file:rounded-xs file:border-0 file:bg-surface-muted file:px-3 file:py-1 file:text-sm file:font-medium file:text-ink;
     }
     .input-invalid {
-        @apply border-bad focus:border-bad focus:ring-bad/15;
+        @apply border-bad focus:border-bad;
     }
     .field-error {
         @apply mt-1.5 text-sm font-medium text-bad;
     }
 
     .badge {
-        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+        @apply inline-flex items-center gap-1 rounded-xs px-2 py-0.5 text-xs font-medium;
     }
     .badge-ok {
         @apply bg-ok-soft text-ok;
@@ -124,20 +172,35 @@
     .badge-bad {
         @apply bg-bad-soft text-bad;
     }
+    .badge-low {
+        @apply bg-champ text-on-champ;
+    }
+    .badge-out {
+        @apply bg-ink text-canvas;
+    }
+
+    .price {
+        @apply font-medium tabular-nums;
+    }
+
+    /* garis bawah tipis untuk tautan teks di dalam paragraf */
+    .link {
+        @apply font-medium text-ink underline decoration-gold decoration-1 underline-offset-4 hover:decoration-ink;
+    }
 
     .table-wrap {
-        @apply overflow-x-auto rounded-2xl border border-line bg-surface shadow-sm;
+        @apply overflow-x-auto rounded-xs border border-line bg-surface;
     }
     .table {
         @apply w-full text-left text-sm;
     }
     .table thead {
-        @apply bg-surface-muted text-xs tracking-wide text-ink-muted uppercase;
+        @apply bg-surface-muted text-ink-muted;
     }
     .table th {
-        @apply px-4 py-3 font-semibold whitespace-nowrap;
+        @apply px-4 py-3 font-medium whitespace-nowrap;
     }
     .table td {
-        @apply border-t border-line px-4 py-3 align-top;
+        @apply border-t border-line px-4 py-3.5 align-middle;
     }
 }

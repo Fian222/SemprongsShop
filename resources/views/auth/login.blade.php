@@ -9,14 +9,14 @@
             <div>
                 <x-field name="password" type="password" label="Password" required autocomplete="current-password" />
                 @if (Route::has('password.request'))
-                    <a href="{{ route('password.request') }}" class="mt-2 inline-block text-sm font-medium text-brand hover:underline">
+                    <a href="{{ route('password.request') }}" class="mt-2 inline-block text-sm font-medium text-ink underline-offset-2 hover:underline">
                         Lupa password?
                     </a>
                 @endif
             </div>
 
             <label class="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="remember" class="size-4 rounded accent-brand" @checked(old('remember'))>
+                <input type="checkbox" name="remember" class="size-4 rounded accent-ink" @checked(old('remember'))>
                 Ingat saya
             </label>
 
@@ -24,7 +24,7 @@
         </form>
 
         <x-slot:footer>
-            Belum punya akun? <a href="{{ route('register') }}" class="font-semibold text-brand hover:underline">Daftar sekarang</a>
+            Belum punya akun? <a href="{{ route('register') }}" class="font-medium text-brand hover:underline">Daftar sekarang</a>
         </x-slot:footer>
     </x-auth-card>
 @endsection

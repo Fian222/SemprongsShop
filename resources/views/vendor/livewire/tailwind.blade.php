@@ -5,7 +5,7 @@
         ? "(\$el.closest('{$scrollTo}') || document.querySelector('{$scrollTo}')).scrollIntoView()"
         : '';
     $pageName = $paginator->getPageName();
-    $tombol = 'grid size-10 place-items-center rounded-full border border-line bg-surface text-sm font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-40 disabled:hover:border-line disabled:hover:text-ink';
+    $tombol = 'grid size-10 place-items-center rounded-xs border border-line bg-surface text-sm font-medium text-ink tabular-nums transition-colors hover:border-ink disabled:opacity-40 disabled:hover:border-line';
 @endphp
 
 <div>
@@ -28,7 +28,7 @@
                             <span wire:key="paginator-{{ $pageName }}-page{{ $page }}">
                                 @if ($page == $paginator->currentPage())
                                     <span aria-current="page"
-                                        class="grid size-10 place-items-center rounded-full bg-brand text-sm font-semibold text-on-brand">{{ $page }}</span>
+                                        class="grid size-10 place-items-center rounded-xs bg-ink text-sm font-medium text-canvas tabular-nums">{{ $page }}</span>
                                 @else
                                     <button type="button" class="{{ $tombol }}" aria-label="Halaman {{ $page }}"
                                         wire:click="gotoPage({{ $page }}, '{{ $pageName }}')"

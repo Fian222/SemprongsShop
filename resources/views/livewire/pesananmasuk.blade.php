@@ -18,11 +18,11 @@
             <tbody>
                 @forelse ($pesanan as $item)
                     <tr wire:key="pesanan-{{ $item->id }}">
-                        <td class="font-mono font-semibold whitespace-nowrap">{{ $item->kode_pemesanan }}</td>
+                        <td class="font-medium whitespace-nowrap tabular-nums">{{ $item->kode_pemesanan }}</td>
                         <td class="font-medium whitespace-nowrap">{{ $item->user->name }}</td>
                         <td class="whitespace-nowrap text-ink-muted">@tanggal($item->created_at)</td>
                         <td><x-daftar-barang-pesanan :pesanan="$item" /></td>
-                        <td class="text-right font-semibold whitespace-nowrap">@rupiah($item->total_harga)</td>
+                        <td class="text-right font-medium whitespace-nowrap tabular-nums">@rupiah($item->total_harga)</td>
                         <td class="text-right">
                             <button type="button" wire:click="konfirmasi({{ $item->id }})"
                                 class="btn btn-primary btn-sm whitespace-nowrap">
@@ -32,7 +32,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6"><x-empty>Tidak ada pesanan yang menunggu konfirmasi.</x-empty></td>
+                        <td colspan="6"><x-empty>Tidak ada pesanan yang menunggu konfirmasi. Pesanan baru muncul di sini setelah pelanggan checkout.</x-empty></td>
                     </tr>
                 @endforelse
             </tbody>

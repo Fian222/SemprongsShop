@@ -13,7 +13,7 @@
         </form>
 
         <x-slot:footer>
-            Sudah punya akun? <a href="{{ route('login') }}" class="font-semibold text-brand hover:underline">Masuk</a>
+            Sudah punya akun? <a href="{{ route('login') }}" class="font-medium text-brand hover:underline">Masuk</a>
         </x-slot:footer>
     </x-auth-card>
 @endsection

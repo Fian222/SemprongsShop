@@ -11,13 +11,13 @@
     @vite(['resources/css/app.css'])
 </head>
 
-<body class="grid min-h-dvh place-items-center px-4 py-12">
+<body class="grid min-h-dvh place-items-center bg-surface-muted px-4 py-12">
     <main class="w-full max-w-md">
-        <p class="text-center font-display text-2xl font-bold">
-            <x-logo />
+        <p class="text-center">
+            <x-logo size="text-[30px]" class="text-brand" />
         </p>
         <div class="card mt-6 p-6 sm:p-8">
-            <h1 class="text-3xl font-bold">Login admin</h1>
+            <h1 class="text-4xl leading-tight">Login admin</h1>
             <p class="mt-2 text-ink-muted">Kelola produk dan pesanan toko.</p>
 
             @if (session()->has('message'))

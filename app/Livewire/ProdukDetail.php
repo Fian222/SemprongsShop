@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Auth;
 
 class ProdukDetail extends Component
 {
-    public $product, $jumlah_pesanan, $pesanann;
+    public $product, $pesanann;
+
+    public $jumlah_pesanan = 1;
 
     public function mount($id)
     {
@@ -72,7 +74,7 @@ class ProdukDetail extends Component
 
         $this->dispatch('masukKeranjang');
 
-        session()->flash('message', 'Sukses Masuk Pesanan');
+        session()->flash('message', 'Semprong masuk ke tas belanja.');
 
         return redirect()->back();
     }
