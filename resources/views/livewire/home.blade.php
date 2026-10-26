@@ -1,53 +1,43 @@
-<div class="mx-auto max-w-6xl px-4 sm:px-6">
-    {{-- hero --}}
-    <section class="grid items-center gap-10 py-12 md:grid-cols-2 md:py-20">
-        <div>
-            <span class="badge bg-brand-soft text-brand">Dipanggang setiap hari</span>
-            <h1 class="mt-5 text-4xl leading-tight font-bold sm:text-5xl lg:text-6xl">
-                Renyah, manis, dan selalu <span class="text-brand italic">bikin kangen.</span>
-            </h1>
-            <p class="mt-5 max-w-md text-lg text-ink-muted">
-                Kue semprong buatan rumah dengan resep turun-temurun, digulung tipis dan dikemas rapat
-                supaya tetap garing sampai ke tanganmu.
-            </p>
-            <div class="mt-8 flex flex-wrap gap-3">
-                <a wire:navigate href="{{ route('produk') }}" class="btn btn-primary">
-                    Belanja sekarang <x-icon name="arrow-right" />
-                </a>
-                <a href="#terlaris" class="btn btn-secondary">Lihat terlaris</a>
-            </div>
-        </div>
+{{--
+    PROTOTYPE #11 (branch prototype/premium, jangan di-merge ke main):
+    tiga arah visual brand premium, dipilih lewat ?variant=A|B|C. Tanpa parameter = tampilan sekarang.
+    Katalog (varian kemasan, hampers) masih data statis: domain barunya baru dibangun di #13.
+    Tombol tambah ke tas hanya stub di memori.
+--}}
+@php
+    $variant = in_array(request('variant'), ['A', 'B', 'C']) ? request('variant') : null;
+    $foto = fn ($n) => url('build/images/proto-'.$n.'.jpg');
 
-        <figure class="relative">
-            <div class="absolute -inset-2 -z-10 rotate-2 rounded-[2.5rem] bg-brand-soft sm:-inset-4"></div>
-            <img src="{{ asset('images/banner-semprong.jpg') }}" alt="Kue semprong di atas piring"
-                class="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-xl shadow-brand/10">
-            <figcaption class="mt-3 text-right text-xs text-ink-muted">
-                Foto: <a href="https://commons.wikimedia.org/wiki/File:Kuih_Kapit_(53564062798).jpg"
-                    class="underline-offset-2 hover:underline" target="_blank" rel="noopener">Choo Yut Shing</a>, CC BY 2.0
-            </figcaption>
-        </figure>
-    </section>
+    // harga contoh, bukan harga sungguhan
+    $kemasan = [
+        ['nama' => 'Toples 250 g', 'harga' => 45000, 'coret' => null],
+        ['nama' => 'Toples 500 g', 'harga' => 85000, 'coret' => null],
+        ['nama' => 'Kaleng 750 g', 'harga' => 135000, 'coret' => 150000],
+    ];
+    $rasa = [
+        ['nama' => 'Original Wijen', 'catatan' => 'Gurih santan, taburan wijen sangrai.', 'foto' => $foto(1), 'warna' => '#E2A04A', 'teks' => '#2B1B14'],
+        ['nama' => 'Pandan', 'catatan' => 'Daun pandan segar, wangi dan lembut.', 'foto' => $foto(2), 'warna' => '#5E8C3A', 'teks' => '#FFFFFF'],
+        ['nama' => 'Cokelat', 'catatan' => 'Kakao Jawa, pahit-manis yang dalam.', 'foto' => $foto(3), 'warna' => '#5A3A2A', 'teks' => '#FFFFFF'],
+        ['nama' => 'Keju', 'catatan' => 'Keju edam parut, asin yang pas.', 'foto' => $foto(4), 'warna' => '#F2C94C', 'teks' => '#2B1B14'],
+        ['nama' => 'Gula Aren', 'catatan' => 'Gula aren cair, karamel yang hangat.', 'foto' => $foto(5), 'warna' => '#8E4B2B', 'teks' => '#FFFFFF'],
+    ];
+    $hampers = [
+        ['nama' => 'Kotak Surat Cinta', 'isi' => '2 toples 250 g dan kartu ucapan', 'harga' => 165000, 'foto' => $foto(6)],
+        ['nama' => 'Hampers Rasa Rumah', 'isi' => '3 toples 500 g dalam kotak kayu', 'harga' => 245000, 'foto' => $foto(1)],
+        ['nama' => 'Kaleng Pusaka', 'isi' => '1 kaleng 750 g bermotif ubin', 'harga' => 135000, 'foto' => $foto(3)],
+        ['nama' => 'Hampers Korporat', 'isi' => 'Mulai 20 kotak, logo di kartu', 'harga' => 350000, 'foto' => $foto(5)],
+    ];
+    $rp = fn ($n) => 'Rp '.number_format($n, 0, ',', '.');
+@endphp
 
-    {{-- produk --}}
-    <section id="terlaris" class="scroll-mt-24">
-        <div class="flex items-end justify-between gap-4">
-            <div>
-                <h2 class="text-3xl font-bold">Produk terbaik</h2>
-                <p class="mt-1 text-ink-muted">Varian favorit pelanggan minggu ini.</p>
-            </div>
-            <a wire:navigate href="{{ route('produk') }}"
-                class="hidden items-center gap-1 text-sm font-semibold text-brand hover:underline sm:inline-flex">
-                Lihat semua <x-icon name="arrow-right" />
-            </a>
-        </div>
-
-        <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            @foreach ($barangs as $barang)
-                <x-product-card :barang="$barang" :href="route('produk.detail', $barang->id)" />
-            @endforeach
-        </div>
-
-        <a wire:navigate href="{{ route('produk') }}" class="btn btn-secondary mt-8 w-full sm:hidden">Lihat semua produk</a>
-    </section>
+<div>
+    @if ($variant === 'A')
+        @include('prototype.premium-a')
+    @elseif ($variant === 'B')
+        @include('prototype.premium-b')
+    @elseif ($variant === 'C')
+        @include('prototype.premium-c')
+    @else
+        @include('prototype.home-sekarang')
+    @endif
 </div>

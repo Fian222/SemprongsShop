@@ -15,14 +15,23 @@
     @livewireStyles
 </head>
 
+{{-- PROTOTYPE #11 (branch prototype/premium): varian redesign membawa header & footer sendiri --}}
+@php($protoVariant = request()->routeIs('home') && in_array(request('variant'), ['A', 'B', 'C']) ? request('variant') : null)
+
 <body class="flex min-h-dvh flex-col overflow-x-clip">
-    <livewire:navbar />
+    @unless ($protoVariant)
+        <livewire:navbar />
+    @endunless
 
     <main class="flex-1 pb-16">
         @yield('content')
     </main>
 
-    @include('layouts.footer')
+    @unless ($protoVariant)
+        @include('layouts.footer')
+    @endunless
+
+    <x-prototype-switcher />
 
     @livewireScripts
 </body>
