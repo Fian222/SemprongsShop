@@ -15,7 +15,12 @@
     </div>
     <h3 class="mt-4 text-xl leading-snug group-hover:underline group-hover:decoration-gold group-hover:decoration-1 group-hover:underline-offset-4">{{ $produk->nama }}</h3>
     <p class="mt-1 flex items-baseline justify-between gap-2">
-        <span class="price">mulai @rupiah($produk->harga_mulai)</span>
+        <span>
+            <span class="price">mulai @rupiah($produk->harga_mulai)</span>
+            @if ($coret = $produk->hargaCoretMulai())
+                <s class="ml-1 text-sm text-ink-muted tabular-nums"><span class="sr-only">Harga sebelumnya </span>@rupiah($coret)</s>
+            @endif
+        </span>
         @if ($habis)
             <span class="text-[13px] text-ink-muted">Sedang tidak tersedia</span>
         @endif

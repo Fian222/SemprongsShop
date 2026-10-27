@@ -3,9 +3,11 @@
 namespace App\Livewire;
 
 use App\Exceptions\KeranjangDitolak;
+use App\Exceptions\VoucherDitolak;
 use App\Livewire\Forms\AlamatForm;
 use App\Models\Keranjang;
 use App\Models\Pesanan;
+use App\Models\Voucher;
 use App\Pengiriman\OngkirGagal;
 use App\Pengiriman\ShippingProvider;
 use App\Pengiriman\Tarif;
@@ -38,6 +40,12 @@ class Checkout extends Component
     #[Locked]
     public bool $ongkirPerluUbahAlamat = false;
 
+    public $kodeVoucher = '';
+
+    // kode voucher yang sudah diterima; diskonnya dihitung ulang setiap render dan sekali lagi saat pesanan dibuat
+    #[Locked]
+    public ?string $voucherDiterima = null;
+
     public function mount()
     {
         if (! Auth::user()) {
@@ -63,6 +71,27 @@ class Checkout extends Component
         $this->alamatId = $this->form->simpan(Auth::user())->id;
         $this->tambahAlamat = false;
         $this->muatOngkir();
+    }
+
+    public function pakaiVoucher()
+    {
+        $this->validate(['kodeVoucher' => ['required', 'string', 'max:30']], ['kodeVoucher.required' => 'Masukkan kode voucher dulu.']);
+
+        try {
+            $voucher = Voucher::cari($this->kodeVoucher);
+            $voucher->diskonUntuk(Keranjang::milikPengunjung()?->load('items.varian')->subtotal() ?? 0);
+        } catch (VoucherDitolak $e) {
+            return $this->addError('kodeVoucher', $e->getMessage());
+        }
+
+        $this->voucherDiterima = $voucher->kode;
+        $this->kodeVoucher = '';
+    }
+
+    public function hapusVoucher()
+    {
+        $this->voucherDiterima = null;
+        $this->resetValidation('kodeVoucher');
     }
 
     public function bayar()
@@ -104,11 +133,16 @@ class Checkout extends Component
         }
 
         try {
-            $pesanan = Pesanan::buatDariKeranjang($keranjang, Auth::user()->alamats()->find($this->alamatId), $tarif);
+            $pesanan = Pesanan::buatDariKeranjang($keranjang, Auth::user()->alamats()->find($this->alamatId), $tarif, $this->voucherDiterima);
         } catch (KeranjangDitolak $e) {
             $this->muatOngkir();
 
             return $this->addError('keranjang', $e->getMessage());
+        } catch (VoucherDitolak $e) {
+            // mis. kuotanya habis dipakai pembeli lain sejak voucher diterima: tunjukkan total tanpa diskon dulu
+            $this->voucherDiterima = null;
+
+            return $this->addError('kodeVoucher', $e->getMessage().' Vouchernya dilepas. Periksa totalnya, lalu bayar lagi.');
         }
 
         $this->dispatch('keranjang-diperbarui');
@@ -173,13 +207,27 @@ class Checkout extends Component
     {
         $keranjang = Keranjang::milikPengunjung();
         $keranjang?->load('items.varian.produk.fotoUtama');
+        $subtotal = $keranjang?->subtotal() ?? 0;
         $ongkir = collect($this->pilihanKurir)->firstWhere('kunci', $this->kurir)['ongkir'] ?? null;
+
+        // voucher yang tadinya diterima bisa berhenti berlaku selama halaman terbuka; diskonnya tidak dihitung lagi
+        $diskon = 0;
+        $pesanVoucher = null;
+        if ($this->voucherDiterima) {
+            try {
+                $diskon = Voucher::cari($this->voucherDiterima)->diskonUntuk($subtotal);
+            } catch (VoucherDitolak $e) {
+                $pesanVoucher = $e->getMessage();
+            }
+        }
 
         return view('livewire.checkout', [
             'keranjang' => $keranjang,
             'alamats' => Auth::user()->alamats,
-            'subtotal' => $keranjang?->subtotal() ?? 0,
+            'subtotal' => $subtotal,
             'ongkir' => $ongkir,
+            'diskon' => $diskon,
+            'pesanVoucher' => $pesanVoucher,
         ])
             ->extends('layouts.app')
             ->section('content');

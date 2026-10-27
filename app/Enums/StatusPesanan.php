@@ -49,6 +49,26 @@ enum StatusPesanan: string
         };
     }
 
+    /**
+     * Status sesudah pembayaran diterima.
+     *
+     * @return list<self>
+     */
+    public static function sudahDibayar(): array
+    {
+        return [self::Dibayar, self::Diproses, self::Dikirim, self::Selesai];
+    }
+
+    /**
+     * Status yang memegang satu kuota Voucher: sudah dibayar, atau masih bisa dibayar.
+     *
+     * @return list<self>
+     */
+    public static function memegangKuota(): array
+    {
+        return [self::MenungguPembayaran, ...self::sudahDibayar()];
+    }
+
     // stok yang dipesan dikembalikan saat pesanan berakhir tanpa dibayar
     public function mengembalikanStok(): bool
     {

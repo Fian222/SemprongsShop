@@ -34,7 +34,7 @@ class MidtransGateway implements PaymentGateway
                     'order_id' => $referensi,
                     'gross_amount' => $pesanan->total,
                 ],
-                // jumlah harga item harus sama dengan gross_amount, jadi ongkir ikut sebagai item
+                // jumlah harga item harus sama dengan gross_amount, jadi ongkir dan diskon (bernilai negatif) ikut sebagai item
                 'item_details' => $pesanan->items->map(fn ($item) => [
                     'id' => $item->sku,
                     'price' => $item->harga,
@@ -45,6 +45,11 @@ class MidtransGateway implements PaymentGateway
                     'price' => $pesanan->ongkir,
                     'quantity' => 1,
                     'name' => Str::limit('Ongkir '.$pesanan->pengiriman->label(), 50, ''),
+                ]))->when($pesanan->diskon > 0, fn ($items) => $items->push([
+                    'id' => 'VOUCHER',
+                    'price' => -$pesanan->diskon,
+                    'quantity' => 1,
+                    'name' => Str::limit('Voucher '.$pesanan->voucher_kode, 50, ''),
                 ]))->all(),
                 'customer_details' => [
                     'first_name' => $pesanan->user->name,

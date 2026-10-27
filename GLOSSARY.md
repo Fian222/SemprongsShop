@@ -106,6 +106,24 @@ _Avoid_: Transfer, pelunasan
 Menunggu pembayaran → Dibayar → Diproses → Dikirim → Selesai. Pesanan yang belum dibayar bisa berakhir Kedaluwarsa atau Dibatalkan, dan stoknya kembali. Perubahan lain ditolak.
 _Avoid_: Lunas/belum lunas, dikonfirmasi
 
+## Promo
+
+**Voucher**:
+Kode promo yang dimasukkan Pelanggan di checkout untuk memotong Subtotal, dengan **tipe** persen atau nominal. Voucher bisa dibatasi maksimal diskon (untuk tipe persen), minimum Subtotal, kuota, dan masa berlaku, dan bisa dinonaktifkan admin.
+_Avoid_: Kupon, promo code, kode diskon
+
+**Diskon**:
+Potongan dari Voucher atas Subtotal, tidak pernah melebihi Subtotal. Ongkir tidak ikut dipotong. Diskon dihitung ulang di server saat Pesanan dibuat.
+_Avoid_: Potongan harga, cashback
+
+**Kuota**:
+Jumlah Pesanan yang boleh memakai sebuah Voucher. Pesanan yang menunggu pembayaran memegang satu kuota, dan kuota itu lepas lagi bila Pesanannya Kedaluwarsa atau Dibatalkan.
+_Avoid_: Stok voucher, limit
+
+**Pemakaian**:
+Jumlah Pesanan yang sudah dibayar dengan sebuah Voucher. Pesanan yang belum dibayar tidak dihitung sebagai pemakaian.
+_Avoid_: Terpakai (sebagai nama kolom boleh), redeem
+
 ## Pengiriman
 
 **Area tujuan**:

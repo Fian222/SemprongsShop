@@ -12,7 +12,7 @@
     </div>
     @if ($pesanan->diskon)
         <div class="flex justify-between">
-            <dt class="text-ink-muted">Diskon</dt>
+            <dt class="text-ink-muted">Diskon{{ $pesanan->voucher_kode ? ' '.$pesanan->voucher_kode : '' }}</dt>
             <dd class="tabular-nums text-ok">−@rupiah($pesanan->diskon)</dd>
         </div>
     @endif

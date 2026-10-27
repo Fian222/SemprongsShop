@@ -120,6 +120,34 @@
 
         <aside class="panel p-6 lg:sticky lg:top-36">
             <h2 class="text-lg">Ringkasan</h2>
+
+            <div class="mt-4 border-b border-line pb-5">
+                @if ($voucherDiterima)
+                    <div class="flex items-center justify-between gap-3 rounded-xs border border-dashed border-gold bg-surface px-3 py-2.5">
+                        <span class="flex min-w-0 items-center gap-2 text-[15px]">
+                            <x-icon name="ticket" class="size-[18px] shrink-0 text-gold" />
+                            <span class="truncate font-medium tracking-wide">{{ $voucherDiterima }}</span>
+                        </span>
+                        <button type="button" wire:click="hapusVoucher" class="text-sm text-ink-muted underline underline-offset-2 hover:text-ink"
+                            aria-label="Lepas voucher {{ $voucherDiterima }}">Lepas</button>
+                    </div>
+                    @if ($pesanVoucher)
+                        <p class="field-error" role="alert">{{ $pesanVoucher }}</p>
+                    @endif
+                @else
+                    <form wire:submit="pakaiVoucher">
+                        <label for="kode-voucher" class="label">Kode voucher</label>
+                        <div class="flex gap-2">
+                            <input id="kode-voucher" type="text" wire:model="kodeVoucher" autocomplete="off" autocapitalize="characters" spellcheck="false"
+                                maxlength="30" placeholder="mis. HEMAT10" @error('kodeVoucher') aria-invalid="true" aria-describedby="kode-voucher-galat" @enderror
+                                class="input min-w-0 flex-1 uppercase placeholder:normal-case @error('kodeVoucher') input-invalid @enderror">
+                            <button type="submit" class="btn btn-secondary" wire:loading.attr="disabled" wire:target="pakaiVoucher">Pakai</button>
+                        </div>
+                    </form>
+                @endif
+                @error('kodeVoucher') <p id="kode-voucher-galat" class="field-error" role="alert">{{ $message }}</p> @enderror
+            </div>
+
             <dl class="mt-4 flex flex-col gap-2 text-[15px]">
                 <div class="flex justify-between">
                     <dt class="text-ink-muted">Subtotal</dt>
@@ -129,9 +157,15 @@
                     <dt class="text-ink-muted">Ongkir</dt>
                     <dd class="tabular-nums">{{ $ongkir === null ? 'Pilih kurir' : \App\Support\Format::rupiah($ongkir) }}</dd>
                 </div>
+                @if ($diskon)
+                    <div class="flex justify-between">
+                        <dt class="text-ink-muted">Diskon {{ $voucherDiterima }}</dt>
+                        <dd class="tabular-nums text-ok">−@rupiah($diskon)</dd>
+                    </div>
+                @endif
                 <div class="mt-2 flex items-baseline justify-between border-t border-line pt-3">
                     <dt class="font-medium">Total</dt>
-                    <dd class="price text-[28px] leading-none">@rupiah($subtotal + ($ongkir ?? 0))</dd>
+                    <dd class="price text-[28px] leading-none">@rupiah($subtotal + ($ongkir ?? 0) - $diskon)</dd>
                 </div>
             </dl>
             <button type="button" wire:click="bayar" class="btn btn-primary mt-5 w-full" wire:loading.attr="disabled" wire:target="bayar">

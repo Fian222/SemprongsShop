@@ -46,6 +46,26 @@ class KatalogTokoTest extends TestCase
             ->assertDontSee('Rp 15.000');
     }
 
+    public function test_kartu_produk_mencoret_harga_bila_varian_termurahnya_punya_harga_coret()
+    {
+        $this->buatProduk(['nama' => 'Semprong Wijen'], [
+            ['harga' => 45000, 'harga_coret' => 55000],
+            ['harga' => 85000],
+        ]);
+        // harga coret milik varian yang lebih mahal, dan harga coret yang tidak lebih mahal, tidak ditampilkan
+        $this->buatProduk(['nama' => 'Semprong Keju'], [
+            ['harga' => 50000],
+            ['harga' => 90000, 'harga_coret' => 99000],
+        ]);
+        $this->buatProduk(['nama' => 'Semprong Kacang'], [['harga' => 60000, 'harga_coret' => 60000]]);
+
+        $this->get('/produk')->assertOk()
+            ->assertSeeInOrder(['mulai Rp 45.000', 'Harga sebelumnya', 'Rp 55.000'])
+            ->assertDontSee('Rp 99.000')
+            ->assertSee('mulai Rp 60.000')
+            ->assertDontSeeHtml('Harga sebelumnya </span>Rp 60.000');
+    }
+
     public function test_produk_nonaktif_dan_tanpa_varian_aktif_tidak_tampil_di_toko()
     {
         $this->buatProduk(['nama' => 'Semprong Tampil']);

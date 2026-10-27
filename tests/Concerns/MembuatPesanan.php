@@ -27,12 +27,12 @@ trait MembuatPesanan
     }
 
     // kurir pertama yang ditawarkan, kecuali $kunci (mis. 'sicepat:reg') dipilih
-    protected function pesananDari(Keranjang $keranjang, Alamat $alamat, ?string $kunci = null): Pesanan
+    protected function pesananDari(Keranjang $keranjang, Alamat $alamat, ?string $kunci = null, ?string $kodeVoucher = null): Pesanan
     {
         $keranjang->load('items.varian.produk');
         $tarif = app(ShippingProvider::class)->tarif($alamat->area_id, $keranjang->barangKiriman());
         $tarif = $kunci ? Tarif::cari($tarif, $kunci) : $tarif[0];
 
-        return Pesanan::buatDariKeranjang($keranjang, $alamat, $tarif);
+        return Pesanan::buatDariKeranjang($keranjang, $alamat, $tarif, $kodeVoucher);
     }
 }

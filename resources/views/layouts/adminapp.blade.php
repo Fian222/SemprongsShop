@@ -18,6 +18,7 @@
         ['label' => 'Pesanan', 'route' => 'admin.pesanan', 'icon' => 'inbox', 'aktif' => ['admin.pesanan', 'admin.pesanan.*']],
         ['label' => 'Produk', 'route' => 'admin.produk', 'icon' => 'package', 'aktif' => ['admin.produk', 'admin.produk.*']],
         ['label' => 'Kategori', 'route' => 'admin.kategori', 'icon' => 'tag'],
+        ['label' => 'Voucher', 'route' => 'admin.voucher', 'icon' => 'ticket'],
     ];
     $admin = Auth::guard('adminMiddle')->user();
 @endphp

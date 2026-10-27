@@ -8,6 +8,7 @@ use App\Livewire\Admin\DaftarProduk;
 use App\Livewire\Admin\DetailPesanan as AdminDetailPesanan;
 use App\Livewire\Admin\FormProduk;
 use App\Livewire\Admin\KelolaKategori;
+use App\Livewire\Admin\KelolaVoucher;
 use App\Livewire\BukuAlamat;
 use App\Livewire\Checkout;
 use App\Livewire\DaftarPesanan;
@@ -51,6 +52,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/pesanan', AdminDaftarPesanan::class)->name('admin.pesanan');
         Route::get('/pesanan/{pesanan}', AdminDetailPesanan::class)->name('admin.pesanan.detail');
         Route::get('/kategori', KelolaKategori::class)->name('admin.kategori');
+        Route::get('/voucher', KelolaVoucher::class)->name('admin.voucher');
         Route::get('/produk', DaftarProduk::class)->name('admin.produk');
         Route::get('/produk/baru', FormProduk::class)->name('admin.produk.baru');
         Route::get('/produk/{produk}/ubah', FormProduk::class)->name('admin.produk.ubah');

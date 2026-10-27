@@ -58,13 +58,22 @@ class Produk extends Model
     }
 
     /**
-     * Kolom harga_mulai (varian aktif termurah) dan stok_tersedia (jumlah stok varian aktif) untuk kartu produk.
+     * Kolom harga_mulai (varian aktif termurah), harga_coret_mulai (harga coret varian itu), dan stok_tersedia
+     * (jumlah stok varian aktif) untuk kartu produk.
      */
     public function scopeUntukKartu(Builder $query): void
     {
         $query->with('fotoUtama')
             ->withMin('varianAktif as harga_mulai', 'harga')
+            ->addSelect(['harga_coret_mulai' => Varian::select('harga_coret')->whereColumn('produk_id', 'produks.id')
+                ->where('aktif', true)->orderBy('harga')->orderBy('id')->limit(1)])
             ->withSum('varianAktif as stok_tersedia', 'stok');
+    }
+
+    // harga coret di kartu produk, hanya bila lebih mahal dari harga mulai
+    public function hargaCoretMulai(): ?int
+    {
+        return $this->harga_coret_mulai > $this->harga_mulai ? (int) $this->harga_coret_mulai : null;
     }
 
     public function habis(): bool

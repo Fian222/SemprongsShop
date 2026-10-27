@@ -32,7 +32,12 @@
                                     <h2 class="truncate text-[15px] font-medium tracking-normal">
                                         <a wire:navigate href="{{ route('produk.detail', $item->varian->produk->slug) }}" class="hover:underline">{{ $item->varian->produk->nama }}</a>
                                     </h2>
-                                    <p class="text-sm text-ink-muted">{{ $item->varian->nama }} · @rupiah($item->varian->harga)</p>
+                                    <p class="text-sm text-ink-muted">
+                                        {{ $item->varian->nama }} · @rupiah($item->varian->harga)
+                                        @if ($item->varian->punyaHargaCoret())
+                                            <s class="tabular-nums"><span class="sr-only">Harga sebelumnya </span>@rupiah($item->varian->harga_coret)</s>
+                                        @endif
+                                    </p>
                                     @if ($kendala)
                                         <span class="badge badge-bad mt-1.5">{{ $kendala }}</span>
                                     @endif

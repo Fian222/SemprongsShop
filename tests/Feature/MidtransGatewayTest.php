@@ -7,6 +7,7 @@ use App\Models\Pesanan;
 use App\Models\Produk;
 use App\Models\User;
 use App\Models\Varian;
+use App\Models\Voucher;
 use App\Pembayaran\KejadianPembayaran;
 use App\Pembayaran\MidtransGateway;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,7 +22,7 @@ class MidtransGatewayTest extends TestCase
 {
     use MembuatPesanan, RefreshDatabase;
 
-    protected function buatPesanan(): Pesanan
+    protected function buatPesanan(?string $kodeVoucher = null): Pesanan
     {
         $this->travelTo(now()->setDate(2026, 10, 26)->setTime(10, 0));
         $user = User::factory()->create(['name' => 'Budi', 'email' => 'budi@example.com']);
@@ -32,7 +33,7 @@ class MidtransGatewayTest extends TestCase
         $keranjang->tambah($varian, 2);
 
         // simulasi: JNE Reguler 10.000 + 8.000 per kg
-        return $this->pesananDari($keranjang, $this->alamatUntuk($user, ['kode_pos' => '40111']), 'jne:reg');
+        return $this->pesananDari($keranjang, $this->alamatUntuk($user, ['kode_pos' => '40111']), 'jne:reg', $kodeVoucher);
     }
 
     public function test_membuat_transaksi_snap_dengan_bentuk_request_midtrans()
@@ -63,6 +64,22 @@ class MidtransGatewayTest extends TestCase
                 && $body['expiry'] === ['start_time' => '2026-10-26 10:00:00 +0700', 'unit' => 'minute', 'duration' => 1440]
                 && $body['callbacks']['finish'] === route('pesanan.detail', $pesanan);
         });
+    }
+
+    public function test_diskon_voucher_ikut_sebagai_item_bernilai_negatif()
+    {
+        Http::fake(['app.sandbox.midtrans.com/*' => Http::response(['token' => 'token', 'redirect_url' => 'https://example.test'], 201)]);
+        Voucher::factory()->nominal(20000)->create(['kode' => 'HEMAT20']);
+        $pesanan = $this->buatPesanan('HEMAT20');
+
+        (new MidtransGateway('SB-Mid-server-UJICOBA', 'SB-Mid-client-UJICOBA', false))->buatTransaksi($pesanan, $pesanan->nomor);
+
+        Http::assertSent(fn (Request $request) => $request->data()['transaction_details']['gross_amount'] === 88000
+            && $request->data()['item_details'] === [
+                ['id' => 'SMP-PDN-250', 'price' => 45000, 'quantity' => 2, 'name' => 'Semprong Pandan Toples kecil'],
+                ['id' => 'ONGKIR', 'price' => 18000, 'quantity' => 1, 'name' => 'Ongkir JNE Reguler'],
+                ['id' => 'VOUCHER', 'price' => -20000, 'quantity' => 1, 'name' => 'Voucher HEMAT20'],
+            ]);
     }
 
     public function test_mode_produksi_memakai_server_produksi()

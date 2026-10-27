@@ -52,6 +52,17 @@ class KeranjangTest extends TestCase
             ->assertSee('Tas (2)', false);
     }
 
+    public function test_tas_belanja_mencoret_harga_varian_yang_punya_harga_coret()
+    {
+        Keranjang::milikPengunjungAtauBaru()->tambah($this->buatVarian(['harga_coret' => 55000]), 1);
+        Keranjang::milikPengunjungAtauBaru()->tambah($this->buatVarian(['harga' => 30000, 'harga_coret' => 30000], 'Semprong Keju'), 1);
+
+        Livewire::test(KeranjangBelanja::class)
+            ->assertSeeHtml('<s class="tabular-nums"><span class="sr-only">Harga sebelumnya </span>Rp 55.000</s>')
+            ->assertSeeHtmlInOrder(['Semprong Keju', 'Rp 30.000'])
+            ->assertDontSeeHtml('Harga sebelumnya </span>Rp 30.000');
+    }
+
     public function test_jumlah_melebihi_stok_ditolak_dengan_pesan_sisa_stok()
     {
         $this->buatVarian(['stok' => 3]);

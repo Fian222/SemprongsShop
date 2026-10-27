@@ -6,6 +6,7 @@ use App\Enums\StatusPembayaran;
 use App\Enums\StatusPesanan;
 use App\Exceptions\KeranjangDitolak;
 use App\Exceptions\TransisiTidakSah;
+use App\Exceptions\VoucherDitolak;
 use App\Pembayaran\PaymentGateway;
 use App\Pengiriman\Pelacakan;
 use App\Pengiriman\PelacakanGagal;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-#[Fillable(['nomor', 'user_id', 'alamat', 'subtotal', 'ongkir', 'diskon', 'total', 'status', 'batas_bayar'])]
+#[Fillable(['nomor', 'user_id', 'alamat', 'subtotal', 'ongkir', 'diskon', 'total', 'voucher_id', 'voucher_kode', 'status', 'batas_bayar'])]
 class Pesanan extends Model
 {
     protected function casts(): array
@@ -59,6 +60,11 @@ class Pesanan extends Model
         return $this->hasMany(ItemPesanan::class)->orderBy('id');
     }
 
+    public function voucher(): BelongsTo
+    {
+        return $this->belongsTo(Voucher::class);
+    }
+
     public function pengiriman(): HasOne
     {
         return $this->hasOne(Pengiriman::class);
@@ -78,18 +84,24 @@ class Pesanan extends Model
      * Membuat pesanan dari isi keranjang dan memesan stoknya dalam satu transaksi. Baris varian dikunci,
      * jadi dua checkout yang berebut stok terakhir tidak bisa sama-sama berhasil. Harga dihitung ulang dari varian;
      * ongkir datang dari $tarif yang baru saja dikonfirmasi ke ShippingProvider untuk berat keranjang ini.
+     * Diskon $kodeVoucher dihitung ulang dari subtotal itu, dengan baris voucher dikunci supaya kuotanya tidak terlampaui.
      *
      * @throws KeranjangDitolak
+     * @throws VoucherDitolak
      */
-    public static function buatDariKeranjang(Keranjang $keranjang, Alamat $alamat, Tarif $tarif): self
+    public static function buatDariKeranjang(Keranjang $keranjang, Alamat $alamat, Tarif $tarif, ?string $kodeVoucher = null): self
     {
         // dua checkout pertama di hari yang sama bisa mendapat nomor yang sama; yang kalah mencoba lagi
-        return retry(3, fn () => DB::transaction(fn () => static::pesanDariKeranjang($keranjang, $alamat, $tarif), 3),
+        return retry(3, fn () => DB::transaction(fn () => static::pesanDariKeranjang($keranjang, $alamat, $tarif, $kodeVoucher), 3),
             when: fn ($e) => $e instanceof UniqueConstraintViolationException);
     }
 
-    protected static function pesanDariKeranjang(Keranjang $keranjang, Alamat $alamat, Tarif $tarif): self
+    protected static function pesanDariKeranjang(Keranjang $keranjang, Alamat $alamat, Tarif $tarif, ?string $kodeVoucher): self
     {
+        // voucher dikunci sebelum bacaan biasa mana pun: di REPEATABLE READ bacaan biasa pertama membekukan snapshot,
+        // dan hitungan kuota harus melihat pesanan checkout lain yang baru saja selesai memegang kunci ini
+        $voucher = $kodeVoucher === null ? null : Voucher::cari($kodeVoucher, kunci: true);
+
         $items = $keranjang->items()->lockForUpdate()->get();
         // klik ganda: request kedua mendapati keranjang yang sudah dikosongkan request pertama
         if ($items->isEmpty()) {
@@ -109,6 +121,7 @@ class Pesanan extends Model
         }
 
         $subtotal = $items->sum(fn ($item) => $varians[$item->varian_id]->harga * $item->jumlah);
+        $diskon = $voucher?->diskonUntuk($subtotal) ?? 0;
 
         $pesanan = static::create([
             'nomor' => static::nomorBaru(),
@@ -116,8 +129,10 @@ class Pesanan extends Model
             'alamat' => $alamat->salinan(),
             'subtotal' => $subtotal,
             'ongkir' => $tarif->ongkir,
-            'diskon' => 0,
-            'total' => $subtotal + $tarif->ongkir,
+            'diskon' => $diskon,
+            'total' => $subtotal + $tarif->ongkir - $diskon,
+            'voucher_id' => $voucher?->id,
+            'voucher_kode' => $voucher?->kode,
             'status' => StatusPesanan::MenungguPembayaran,
             'batas_bayar' => now()->addHours(config('pembayaran.batas_bayar_jam')),
         ]);
