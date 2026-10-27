@@ -43,6 +43,22 @@ services:
       - app
     restart: unless-stopped
 
+  # mengirim email notifikasi dari antrean database
+  queue:
+    image: localhost/semprongsshop:latest
+    env_file: .env.podman
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: "3306"
+      RUN_MIGRATIONS: "false"
+    command: ["php", "artisan", "queue:work", "--tries=3", "--backoff=60"]
+    volumes:
+      - storage:/var/www/html/storage
+    depends_on:
+      - app
+    restart: unless-stopped
+
   db:
     image: docker.io/library/mariadb:10.11
     env_file: .env.podman

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminLoginController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\NotifikasiPembayaranController;
 use App\Http\Controllers\SimulasiPembayaranController;
 use App\Livewire\Admin\DaftarPesanan as AdminDaftarPesanan;
@@ -32,6 +33,7 @@ Route::get('/checkout', Checkout::class)->name('checkout');
 Route::middleware('auth')->group(function () {
     Route::get('/pesanan', DaftarPesanan::class)->name('pesanan.index');
     Route::get('/pesanan/{pesanan}', DetailPesanan::class)->name('pesanan.detail');
+    Route::get('/pesanan/{pesanan}/invoice', InvoiceController::class)->name('pesanan.invoice');
     Route::get('/akun/alamat', BukuAlamat::class)->name('alamat');
 
     // jendela pembayaran PEMBAYARAN_DRIVER=simulasi, pengganti Snap saat pengembangan
@@ -51,6 +53,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/dashboard', Dashboard::class)->name('admin.dashboard');
         Route::get('/pesanan', AdminDaftarPesanan::class)->name('admin.pesanan');
         Route::get('/pesanan/{pesanan}', AdminDetailPesanan::class)->name('admin.pesanan.detail');
+        Route::get('/pesanan/{pesanan}/invoice', InvoiceController::class)->name('admin.pesanan.invoice');
         Route::get('/kategori', KelolaKategori::class)->name('admin.kategori');
         Route::get('/voucher', KelolaVoucher::class)->name('admin.voucher');
         Route::get('/produk', DaftarProduk::class)->name('admin.produk');

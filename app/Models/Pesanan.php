@@ -7,6 +7,8 @@ use App\Enums\StatusPesanan;
 use App\Exceptions\KeranjangDitolak;
 use App\Exceptions\TransisiTidakSah;
 use App\Exceptions\VoucherDitolak;
+use App\Mail\PembayaranDiterima;
+use App\Mail\PesananDikirim;
 use App\Pembayaran\PaymentGateway;
 use App\Pengiriman\Pelacakan;
 use App\Pengiriman\PelacakanGagal;
@@ -21,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 #[Fillable(['nomor', 'user_id', 'alamat', 'subtotal', 'ongkir', 'diskon', 'total', 'voucher_id', 'voucher_kode', 'status', 'batas_bayar'])]
@@ -187,6 +190,16 @@ class Pesanan extends Model
             $this->status = $tujuan;
             $this->{$tujuan->kolomWaktu()} = now();
             $this->save();
+
+            // di dalam transaksi berkunci: notifikasi ganda kalah di pengecekan transisi, jadi email terkirim sekali
+            $email = match ($tujuan) {
+                StatusPesanan::Dibayar => new PembayaranDiterima($this),
+                StatusPesanan::Dikirim => new PesananDikirim($this),
+                default => null,
+            };
+            if ($email) {
+                Mail::to($this->user)->queue($email);
+            }
         });
     }
 

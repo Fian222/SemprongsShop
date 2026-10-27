@@ -46,10 +46,13 @@
                 @if ($pesanan->dibayar_at)
                     <div class="mt-3 flex justify-between border-t border-line pt-3 text-sm">
                         <dt class="text-ink-muted">Dibayar</dt>
-                        <dd>@tanggal($pesanan->dibayar_at){{ $pesanan->pembayaran?->metode ? ' · '.str($pesanan->pembayaran->metode)->replace('_', ' ')->title() : '' }}</dd>
+                        <dd>@tanggal($pesanan->dibayar_at){{ $pesanan->pembayaran?->metode ? ' · '.$pesanan->pembayaran->labelMetode() : '' }}</dd>
                     </div>
                 @endif
             </x-rincian-harga>
+            <a href="{{ route('pesanan.invoice', $pesanan) }}" class="btn btn-secondary mt-6 w-full">
+                <x-icon name="download" /> Unduh invoice
+            </a>
         </aside>
     </div>
 </div>

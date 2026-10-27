@@ -95,6 +95,9 @@
         <aside class="panel p-6 lg:sticky lg:top-24">
             <h2 class="text-lg">Rincian harga</h2>
             <x-rincian-harga :pesanan="$pesanan" class="mt-4" />
+            <a href="{{ route('admin.pesanan.invoice', $pesanan) }}" class="btn btn-secondary btn-sm mt-4 w-full">
+                <x-icon name="download" /> Unduh invoice
+            </a>
 
             <h2 class="mt-8 text-lg">Pembayaran</h2>
             @if ($pembayaran = $pesanan->pembayaran)
@@ -106,7 +109,7 @@
                     @if ($pembayaran->metode)
                         <div class="flex justify-between gap-4">
                             <dt class="text-ink-muted">Metode</dt>
-                            <dd>{{ str($pembayaran->metode)->replace('_', ' ')->title() }}</dd>
+                            <dd>{{ $pembayaran->labelMetode() }}</dd>
                         </div>
                     @endif
                     @if ($pembayaran->dibayar_at)

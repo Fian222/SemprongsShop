@@ -102,6 +102,10 @@ _Avoid_: Deadline, jatuh tempo
 Transaksi di payment gateway untuk satu Pesanan, beserta metode dan notifikasi terakhirnya.
 _Avoid_: Transfer, pelunasan
 
+**Invoice**:
+Dokumen PDF satu Pesanan berisi Item pesanan, Subtotal, ongkir, Diskon, Total, dan status pembayarannya. Hanya pemilik Pesanan dan admin yang bisa mengunduhnya. Invoice juga dilampirkan di email "Pembayaran diterima".
+_Avoid_: Nota, faktur, kuitansi
+
 **Status pesanan**:
 Menunggu pembayaran → Dibayar → Diproses → Dikirim → Selesai. Pesanan yang belum dibayar bisa berakhir Kedaluwarsa atau Dibatalkan, dan stoknya kembali. Perubahan lain ditolak.
 _Avoid_: Lunas/belum lunas, dikonfirmasi

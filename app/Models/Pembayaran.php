@@ -16,6 +16,12 @@ class Pembayaran extends Model
         return ['status' => StatusPembayaran::class, 'nominal' => 'integer', 'payload' => 'array', 'dibayar_at' => 'datetime'];
     }
 
+    // mis. "bank_transfer" menjadi "Bank Transfer"; null bila belum diketahui
+    public function labelMetode(): ?string
+    {
+        return $this->metode ? (string) str($this->metode)->replace('_', ' ')->title() : null;
+    }
+
     public function pesanan(): BelongsTo
     {
         return $this->belongsTo(Pesanan::class);

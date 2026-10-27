@@ -115,4 +115,10 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    // tema email di resources/views/vendor/mail/html/themes
+    'markdown' => [
+        'theme' => 'semprong',
+        'paths' => [resource_path('views/vendor/mail')],
+    ],
+
 ];
