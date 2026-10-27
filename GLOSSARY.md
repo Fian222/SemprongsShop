@@ -153,3 +153,17 @@ _Avoid_: AWB, waybill, nomor tracking
 **Pelacakan**:
 Posisi terakhir paket dan riwayat perjalanannya menurut Kurir, dibaca dari Resi. Paket yang menurut Pelacakan sudah diterima membuat Pesanan Dikirim menjadi Selesai.
 _Avoid_: Tracking, status kirim
+
+## Laporan
+
+**Omzet**:
+Penjualan toko dari Pesanan yang sudah dibayar (Dibayar, Diproses, Dikirim, Selesai): Subtotal − Diskon, tanpa ongkir karena ongkir diteruskan ke Kurir. Omzet masuk pada hari pembayarannya diterima, bukan hari Pesanan dibuat.
+_Avoid_: Pendapatan, revenue, penjualan kotor
+
+**Terlaris**:
+Produk dengan jumlah barang terjual terbanyak dari Pesanan yang sudah dibayar dalam suatu periode. Dihitung dari nama produk di Item pesanan, jadi produk yang sudah tidak ada di katalog tetap terhitung.
+_Avoid_: Best seller, Produk unggulan (itu pilihan admin)
+
+**Ekspor pesanan**:
+File CSV berisi Pesanan semua status yang dibuat pada rentang tanggal tertentu, untuk dibuka di spreadsheet.
+_Avoid_: Laporan penjualan, download data

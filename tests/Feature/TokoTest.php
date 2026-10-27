@@ -137,7 +137,7 @@ class TokoTest extends TestCase
 
         $this->actingAs($this->admin, 'adminMiddle');
         $this->get('/admin/pesanan?status=dibayar')->assertOk()->assertSee('SMP-20261022-0001')->assertSee('Toples kecil');
-        $this->get('/admin/dashboard')->assertOk()->assertSee('Pesanan dibayar, perlu disiapkan');
+        $this->get('/admin/dashboard')->assertOk()->assertSeeInOrder(['Omzet hari ini', 'Rp 30.000']); // tanpa ongkir
     }
 
     public function test_halaman_admin_bisa_dibuka()

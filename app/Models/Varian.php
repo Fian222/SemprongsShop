@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Exceptions\KeranjangDitolak;
 use Database\Factories\VarianFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,6 +43,12 @@ class Varian extends Model
     public function menipis(): bool
     {
         return ! $this->habis() && $this->stok < self::STOK_MENIPIS;
+    }
+
+    // padanan query untuk menipis()
+    public function scopeStokMenipis(Builder $query): void
+    {
+        $query->whereBetween('stok', [1, self::STOK_MENIPIS - 1]);
     }
 
     // varian aktif dari produk yang tampil di toko

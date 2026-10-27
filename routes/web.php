@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminLoginController;
+use App\Http\Controllers\EksporPesananController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\NotifikasiPembayaranController;
 use App\Http\Controllers\SimulasiPembayaranController;
@@ -52,6 +53,7 @@ Route::prefix('admin')->group(function () {
     Route::middleware('adminMiddle')->group(function () {
         Route::get('/dashboard', Dashboard::class)->name('admin.dashboard');
         Route::get('/pesanan', AdminDaftarPesanan::class)->name('admin.pesanan');
+        Route::get('/pesanan/ekspor', EksporPesananController::class)->name('admin.pesanan.ekspor');
         Route::get('/pesanan/{pesanan}', AdminDetailPesanan::class)->name('admin.pesanan.detail');
         Route::get('/pesanan/{pesanan}/invoice', InvoiceController::class)->name('admin.pesanan.invoice');
         Route::get('/kategori', KelolaKategori::class)->name('admin.kategori');

@@ -13,6 +13,15 @@ class VarianProduk extends Component
 
     public VarianForm $form;
 
+    // tautan stok menipis di dashboard membuka langsung form ubah varian (?varian=id)
+    public function mount()
+    {
+        $varian = $this->produk->varians()->find(request()->integer('varian'));
+        if ($varian) {
+            $this->form->isi($varian);
+        }
+    }
+
     public function ubah($id)
     {
         $this->form->isi($this->produk->varians()->findOrFail($id));
